@@ -1,0 +1,226 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <base href="<%=basePath%>">
+    
+    <title>首页</title>
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">    
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	
+	<link rel="stylesheet" type="text/css" href="resources/css/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="resources/css/main.css" />
+  </head>
+  
+  <body>
+
+<div class="wrap">
+
+	<div id="title" style="width:100%; height:100px; margin-top:-150px; background-color:#18222A; position:fixed; z-index:5">
+		<p style="line-height:100px;">贷你飞金融业务管理系统</p>
+	</div>
+
+    <div id="info" style="margin-top:10rem;">
+        
+         
+        <div id="loan_order">
+            <p>您的贷款额度:${ customerMsg.loanAmount}元 &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp剩余贷款额度为: ${ customerMsg.restAmount}元 </p>
+            <input id="restAmount" value="${ customerMsg.restAmount}" style="display:none;">
+            <div class="line"></div>
+	        <div class="space"></div>
+            <div style="width:25rem; float:left; margin-top:-5rem;">
+                <div class="input-group"  style="margin-top:6rem;">
+                    <span class="input-group-addon" style="height:3rem;">银行卡号：</span>
+                    <input id="loan_bank_card_num" name="loan_bank_card_num" class="form-control" placeholder="请输入您绑定的银行卡号" style="height:3rem;">
+                </div>
+                <div class="input-group"  style="margin-top:1rem;">
+                    <span class="input-group-addon" style="height:3rem;">贷款时间：</span>
+                    <select id="loan_time" name="loan_time" class="form-control" style="height:3rem;">
+                        <option>1个月</option>
+                        <option>3个月</option>
+                        <option>半年</option>
+                    </select>
+                </div>
+                <div class="input-group"  style="margin-top:1rem;">
+                    <span class="input-group-addon" style="height:3rem;">贷款金额：</span>
+                    <input id="loan_num" name="loan_num" class="form-control" placeholder="贷款金额必须为100的整数" style="height:3rem;">           
+                </div>
+                <p id="error" style="margin-left:5px; color:red; font-size:14px; display:none;">贷款金额必须为100的整数</p>
+                <p id="error1" style="margin-left:5px; color:red; font-size:14px; display:none;">贷款金额不能大于贷款额度</p>
+                <div class="input-group"  style="margin-top:1rem;">
+                    <span class="input-group-addon" style="height:3rem;">贷款用途：</span>
+                    <input id="loan_use" name="loan_use" class="form-control" style="height:3rem;">
+                </div>
+                <div class="input-group"  style="margin-top:1rem;">
+                    <span class="input-group-addon" style="width:6.8rem;height:3rem;">密码：</span>
+                    <input id="loan_password" name="loan_password" class="form-control" placeholder="再次输入您的登陆密码" style="width:18.2rem;height:3rem;">
+                </div>
+            </div>
+            <input type="file" name="loan_video" id="loan_video" style="display:none" onchange="checkVideo()">
+            <div style="width:25rem; float:right; text-align:center;">
+                <div id="video"></div>
+                <a><img id="v_logo" src="resources/images/video.png" onclick="loan_video.click()"></a>
+                <div id="file">                                 
+                    <input type="button" id="btn" class="btn btn-success" value="上传个人录像" onclick="loan_video.click()">                          
+                </div>
+                <div class="input-group" style="width:27rem; position:absolute; z-index:3; font-size:15px; color:black; margin-top:225px; margin-left:1px;">
+                    <span class="input-group-addon" style="height:3rem;">文件路径：</span>
+                    <input id="upfile" name="loan_video_url" class="form-control" value="未选择文件" style="height:3rem;">  
+                </div>
+                <p id="v_error" style="margin-top:300px; margin-left:10px; color:red; font-size:14px; display:none;">视频格式不符合</p>
+            </div>
+            <div>
+                
+                <input type="button" class="btn btn-success" value="提交" onclick="loan_submit()" style="width:100px; margin-left:770px; margin-top:100px;">
+            </div>
+        </div>
+        
+        
+        
+        <div id="repay_money">
+                                        
+            <div id="query">
+                <div style="color:green; font-size:17px; text-align:left;">查询条件</div>
+                <div class="line"></div>
+	            <div class="space"></div>
+                <div>
+                    <div class="input-group" style="width:90rem;">
+                        <span class="input-group-addon">贷款单号:</span>
+                        <input class="form-control" style="width:20rem;">
+                        
+                        <span class="input-group-addon">手机号码:</span>
+                        <input class="form-control" style="width:20rem;">
+                        
+                        <span class="input-group-addon">身份证号:</span>
+                        <input class="form-control" style="width:20rem;">
+                    </div>
+                    <div class="space"></div>
+                    <div class="input-group" style="width:90rem;">
+                        <span class="input-group-addon" style="width:6rem;">贷款人:</span>
+                        <input class="form-control" style="width:20rem;">
+                        
+                        <span class="input-group-addon">贷款状态:</span>
+                        <select class="form-control" style="width:20rem;">
+                            <option>请选择</option>
+                            <option>审核中</option>
+                            <option>已还款</option>
+                            <option>待还款</option>
+                        </select>
+                        
+                        <span class="input-group-addon">贷款时间:</span>
+                        <input class="form-control" style="width:20rem;">
+                    </div>
+                </div>
+                <div> 
+                    <input type="button" class="btn btn-success" value="查询" style="width:100px; margin-top:30px; margin-left:1105px;">
+                </div>
+                
+            </div>
+            <div>
+                
+                <table class="table table-hover " id="table" style="width:1150px; height:100px;">
+                    <tr>
+                        <th>贷款单号</th>
+                        <th>贷款金额</th>
+                        <th>贷款日期</th>
+                        <th>贷款人</th>
+                        <th>贷款状态</th>
+                        <th>还款剩余时间</th>
+                    </tr>
+                    <tr>
+                        <td>DNF20160513160215</td>
+                        <td>￥10000</td>
+                        <td>2016-05-13</td>
+                        <td>张三</td>
+                        <td>待还款</td>
+                        <td>3个月零8天</td>
+                    </tr>
+                    <tr>
+                        <td>DNF20170514091556</td>
+                        <td>￥15000</td>
+                        <td>2017-05-14</td>
+                        <td>李四</td>
+                        <td>审核中</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>DNF20160513160215</td>
+                        <td>￥10000</td>
+                        <td>2016-05-13</td>
+                        <td>张三</td>
+                        <td>待还款</td>
+                        <td>3个月零8天</td>
+                    </tr>
+                    <tr>
+                        <td>DNF20170514091556</td>
+                        <td>￥15000</td>
+                        <td>2017-05-14</td>
+                        <td>李四</td>
+                        <td>审核中</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+            <div>
+                <ul class="pagination">
+                    <li><a style="color:green"><<</a></li>
+                    <li class="active"><a style="background-color:green">1</a></li>
+                    <li><a style="color:green">>></a></li>
+                </ul>
+            </div>
+        </div>   
+    </div>
+</div>
+<div class="nav-main">
+<div class="nav-box">
+<div class="nav">
+  <ul class="nav-ul">
+  	<li><a class="loan"><span>客户贷款</span></a></li>
+  	<li><a class="repay"><span>客户还款</span></a></li>
+  	<li><a class="about"><span>关于我们</span></a></li>
+  	<li><a class="exit"><span>退出</span></a></li>
+  </ul>
+</div>
+<div class="nav-slide">
+    <div class="nav-slide-o">
+    	<ul>
+    		<li id="loan"><a><span>我要贷款</span></a></li>
+    	</ul>
+    </div>
+    <div class="nav-slide-o">
+    	<ul>
+    		<li id="repay"><a><span>我要还款</span></a></li>
+    	</ul>
+    </div>
+</div>
+</div>
+</div>
+  
+    
+    
+     
+    
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="resources/js/bootstrap.js"></script>
+    <script type="text/javascript" src="resources/js/ajaxfileupload.js"></script>
+    <script type="text/javascript" src="resources/js/main.js"></script>
+
+    
+  </body>
+</html>

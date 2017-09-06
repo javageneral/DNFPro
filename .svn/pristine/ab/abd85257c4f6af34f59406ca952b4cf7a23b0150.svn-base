@@ -1,0 +1,48 @@
+package com.dnf.dao;
+
+import java.util.Date;
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.dnf.entity.City;
+import com.dnf.entity.CustAmount;
+import com.dnf.entity.CustInfo;
+import com.dnf.entity.Customer;
+import com.dnf.entity.OrderMessage;
+
+public interface CustomerDao {
+	List<Customer> queryAllCust(@Param("offset") int offset, @Param("limit") int limit);
+	
+	Customer queryByPhoneNum(String PhoneNum);
+	
+	int insert2Customers(@Param("phoneNum")String phoneNum, @Param("password")String password);
+	
+	CustInfo query4CustInfoByPhoneNum(String phoneNum);
+	
+	CustAmount query4CustAmountByPhoneNum(String phoneNum);
+	
+	int insert2CustomerInfo(@Param("id")long id, @Param("phoneNum")String phoneNum, @Param("name")String name,
+			@Param("idCardNum")String idCardNum, @Param("city")String city,
+			@Param("cityCode")String cityCode, @Param("sex")String sex,@Param("address")String address,
+			@Param("idCardUpPhoto")String idCardUpPhoto, @Param("idCardDownPhoto")String idCardDownPhoto, 
+			@Param("state")String state, @Param("createDate")Date createDate);
+	
+	int insert2customerAmount(@Param("id")long id, @Param("phoneNum")String phoneNum, @Param("loanAmount")int loanAmount, 
+			@Param("usedAmount")int usedAmount, @Param("restAmount")int restAmount, @Param("creditCardNum")String creditCardNum );
+	
+	int insert2customerLoan(@Param("orderId")String orderId, @Param("msgType")String msgType, @Param("state")String state, 
+			@Param("phoneNum")String phoneNum, @Param("orderMsg")String orderMsg, @Param("createDate")Date createDate,
+			@Param("cityCode")String cityCode,@Param("loanTime")Date loanTime);
+	
+//	List<OrderMessage> query4OrderMessageByPhoneNum(String phoneNum);
+	
+	List<OrderMessage> query4OrderMessage(String sql);
+	
+	/*
+	 * 客户下单后更新客户额度
+	 */
+	int updateCustAmount(@Param("usedAmount") String usedAmount, @Param("restAmount") String restAmount, @Param("phoneNum") String phoneNum);
+	
+	
+}

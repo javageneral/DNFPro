@@ -1,0 +1,23 @@
+package com.dnf.utils;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class StaticMap {
+	private static Map<String, String> cityMap;
+	
+	public static Map  getCityMap(){
+		if( cityMap == null){
+			cityMap = new HashMap<String, String>();
+			cityMap.put("01", "广州");
+			cityMap.put("02", "深圳");
+			cityMap.put("03", "中山");
+		}
+		return cityMap;
+	}
+	
+    private StaticMap() {  
+        super();  
+	}  
+
+}

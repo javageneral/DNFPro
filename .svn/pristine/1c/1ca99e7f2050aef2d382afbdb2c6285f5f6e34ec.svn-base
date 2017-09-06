@@ -1,0 +1,45 @@
+function login(){
+	var username = $('#username').val();
+	var password = $('#password').val();
+	var _csrf = $('#_csrf').val();
+	var login_err = document.getElementById("login_err");
+	if (username == ""){
+        login_err.innerHTML = "用户名不能为空";
+        $("#username").focus();
+		return false;
+	}else{
+		login_err.innerHTML = "";
+	}
+	if(password == ""){
+		login_err.innerHTML = "密码不能为空";
+        $("#password").focus();
+		return false;
+	}
+	else {
+		login_err.innerHTML = "";
+	}
+	
+	$.ajax({
+		url: "login.action",
+		type: "post",
+		data: {
+			"username" : username,
+			"password" : password,
+			"CSRFToken" : _csrf
+		},
+		dataType: "json",
+		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+		success:function(result){
+			console.log(result);
+			if(result["success"]){
+				alert("登录成功");
+			}else{
+				//alert(result["error"]);
+				login_err.innerHTML = result.error;
+			}
+		},
+		error: function(result){
+			//alert(result);
+		}
+	})
+}

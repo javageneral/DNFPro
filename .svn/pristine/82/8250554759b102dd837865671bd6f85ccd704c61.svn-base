@@ -1,0 +1,58 @@
+package com.dnf.entity;
+
+public class CustAmount {
+	long id;
+	String phoneNum;
+	String loanAmount;
+	String usedAmount;
+	String restAmount;
+	String creditCardNum;
+	
+	
+	public String getCreditCardNum() {
+		return creditCardNum;
+	}
+	public void setCreditCardNum(String creditCardNum) {
+		this.creditCardNum = creditCardNum;
+	}
+	public long getId() {
+		return id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public String getPhoneNum() {
+		return phoneNum;
+	}
+	public void setPhoneNum(String phoneNum) {
+		this.phoneNum = phoneNum;
+	}
+	public String getLoanAmount() {
+		return loanAmount;
+	}
+	public void setLoanAmount(String loanAmount) {
+		this.loanAmount = loanAmount;
+	}
+	public String getUsedAmount() {
+		return usedAmount;
+	}
+	public void setUsedAmount(String usedAmount) {
+		this.usedAmount = usedAmount;
+	}
+	public String getRestAmount() {
+		return restAmount;
+	}
+	public void setRestAmount(String restAmount) {
+		this.restAmount = restAmount;
+	}
+	@Override
+	public String toString() {
+		return "CustAmount [id=" + id + ", phoneNum=" + phoneNum
+				+ ", loanAmount=" + loanAmount + ", usedAmount=" + usedAmount
+				+ ", restAmount=" + restAmount + ", creditCardNum="
+				+ creditCardNum + "]";
+	}
+
+	
+}

@@ -1,0 +1,25 @@
+package com.dnf.dao;
+
+import java.util.List;
+
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.dnf.BaseTest;
+import com.dnf.entity.CustInfo;
+
+public class BeforeLoanTest extends BaseTest{
+	
+	@Autowired
+	private BeforeLoanDao dao;
+	
+	@Test
+	public void test10NInfo(){
+		List<CustInfo> list = dao.query4customerInfo10N(20, 10);
+		int total = dao.query4countInfo10N();
+		System.out.println("  +++  " + total );
+		for(CustInfo cust : list){
+			System.out.println(cust.toString());
+		}
+	}
+}

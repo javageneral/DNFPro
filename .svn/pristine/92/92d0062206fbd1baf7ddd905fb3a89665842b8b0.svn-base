@@ -1,0 +1,323 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <base href="<%=basePath%>">
+    
+    <title>customerApproval</title>
+    
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">    
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+   
+    <link rel="stylesheet" type="text/css" href="resources/css/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="resources/css/usermain.css" />
+    <style>
+        .modal-backdrop{
+           z-index:0;
+        } 
+    </style>
+
+  </head>
+  
+  <body>
+
+  <div class="wrap">
+     <!-- 顶部公司名 -->
+	    <div class="title_wrap">
+			<h5 class="title">贷你飞金融业务管理系统</h5>
+		</div>
+	    <!-- 系统设置 -->
+		<div id="cityManageCon"></div>
+		<div id="personnelManageCon"></div>
+		<div id="systemBackupCon"></div>
+		<div id="dataRecoveryCon"></div>
+		<div id="operationRecordCon"></div>
+
+		<!-- 贷前账户管理 -->
+		<div id="custInfoApproalCon"></div>
+		<div id="custLoanApproalCon"></div>
+		<div id="custInfoInquiryCon"></div>
+		<div id="assignCon"></div>
+
+		<!-- 贷后账户 -->
+		<div id="overdueAccountCon"></div>
+		<div id="overdueRemindCon"></div>
+		<div id="overdueStatementCon"></div>
+
+		<!-- 财务报表 -->
+		<div id="loanListCon"></div>
+		<div id="ledgerCon"></div>
+		<div id="repaymentListCon"></div>
+    
+  </div>
+
+  <div>
+      <div class="nav-main" >
+	  <div class="nav-box">
+		  <div class="nav">
+		    <ul class="nav-ul">
+		    	<li><a href="sys/usermain" class="home"><span>首页</span></a></li>
+		    	<li><a class="systemSet"><span>系统设置</span></a></li>
+		    	<li><a class="preAccount"><span>贷前账户管理</span></a></li>
+		    	<li><a class="aftAccount"><span>贷后账户管理</span></a></li>
+		    	<li><a class="financialState"><span>财务报表</span></a></li>
+		    	<li><a class="exit"><span>退出</span></a></li>
+		    </ul>
+		  </div>
+		  <div class="nav-slide">
+		      <div class="nav-slide-o"></div>
+		      <div class="nav-slide-o">
+		      	<ul>
+		      		<li id="cityManage"><a href="#"><span>地市管理</span></a></li>
+		      		<li id="personnelManage"><a href="#"><span>人员权限管理</span></a></li>
+		      		<li id="systemBackup"><a href="#"><span>系统备份</span></a></li>
+		      		<li id="dataRecovery"><a href="#"><span>数据恢复</span></a></li>
+		      		<li id="operationRecord"><a href="#"><span>操作记录查询</span></a></li>
+		      	</ul>
+		      </div>
+		      <div class="nav-slide-o">
+		      	<ul>
+		      		<li id="custInfoApproal"><a href="sys/approval"><span>客户信息审批</span></a></li>
+		      		<li id="custLoanApproal"><a href="#"><span>客户贷款审批</span></a></li>
+		      		<li id="custInfoInquiry"><a href="#"><span>客户信息查询</span></a></li>
+		      		<li id="assign"><a href="#"><span>分配功能</span></a></li>
+		      	</ul>
+		      </div>
+		      <div class="nav-slide-o">
+		      	<ul>
+		      		<li id="overdueAccount"><a href="#"><span>逾期账户工作</span></a></li>
+		      		<li id="overdueRemind"><a href="#"><span>逾期账单信息提醒</span></a></li>
+		      		<li id="overdueStatement"><a href="#"><span>逾期情况报表</span></a></li>
+		      	</ul>
+		      </div>
+		      <div class="nav-slide-o">
+		      	<ul>
+		      		<li id="loanList"><a href="#"><span>放款名单</span></a></li>
+		      		<li id="ledger"><a href="#"><span>分类账</span></a></li>
+		      		<li id="repaymentList"><a href="#"><span>还款名单</span></a></li>
+		      	</ul>
+		      </div>
+		  </div>
+	  </div>
+    </div>
+  
+    <div style="margin-top:-870px;margin-left:200px;width:1000px;">
+           <form action="" class="form-group">
+             <select class="form-control" style="width:100px;" onchange="show(this.options[this.options.selectedIndex].value)">
+                <option value="1">全部</option>
+                <option value="2">未审批</option>
+                <option value="3">已审批</option>
+            </select>
+          </form>
+    
+           <table id="approvalMsg" class="table table-border table-hover table-striped table-responsive">
+             <tr>
+                <th style="color:green">姓名</th>
+                <th style="color:green">性别</th>
+                <th style="color:green">电话</th>
+                <th style="color:green">身份证号</th>
+                <th style="color:green">地址</th>
+                <th style="color:green">操作</th>
+             </tr>
+           </table>
+           <button class="btn"><strong>上一页</strong></button>
+           <span style="display:inline-block;width:25px;text-align:center"><strong>1</strong></span>
+           <button class="btn"><strong>下一页</strong></button>
+    </div>
+     
+   <div class="modal" id="mymodal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+    		<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+				<h4 class="modal-title">客户信息审批</h4>
+			</div>
+			<div class="modal-body">
+				<input id="noPassMsg" class="form-control" type="text" placeholder="请输入审批不通过原因">
+			</div>
+			<div class="modal-footer">
+				<button id='nopass' onclick="nopass(this.name)" type="button" class="btn btn-default" data-dismiss="modal">不通过</button>
+				<button id='pass' onclick="pass(this.name)" type="button" class="btn btn-primary" data-dismiss="modal">通过</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+       
+ 
+   <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js" charset="utf-8"></script>
+   <script type="text/javascript" src="resources/js/bootstrap.js"></script>
+   <script type="text/javascript" src="resources/js/usermain.js"></script>
+   <script>
+       $(function(){
+          both();
+       });
+       
+       function show(val){
+          if(val == '1'){
+             both();
+          }else if(val == '2'){
+             noAppr();
+          }else{
+             Appr();
+          }
+       }
+       
+       //加载所有
+       function both(){
+           //alert("1");
+           $.ajax({
+             url:'before/getCustInfo/1',
+             type:'get',
+             success:function(result){
+                //console.log(result);
+                if(result.success){
+                    var str = "";               
+                    for(var i=0;i<result.data.length;i++){
+                        if(result.data[i].state == "10N"){
+                        str += '<tr><td>' + result.data[i].name + 
+                               '</td><td>' + result.data[i].sex + 
+                               '</td><td>'+ result.data[i].phoneNum + 
+                               '</td><td>' + result.data[i].idCardNum + 
+                               '</td><td>' + result.data[i].address + 
+                               '</td><td><button type="button" class="btn btn-success btn-xs" id="'+ 
+                               result.data[i].phoneNum + '" onclick="modal('　+ 
+                               result.data[i].phoneNum +　')">审批</button></td></tr>';
+                       }
+                    }
+                    for(var i=0;i<result.data.length;i++){
+                        if(result.data[i].state == "10F"){
+                        str += '<tr><td>' + result.data[i].name + 
+                               '</td><td>' + result.data[i].sex + 
+                               '</td><td>'+ result.data[i].phoneNum + 
+                               '</td><td>' + result.data[i].idCardNum + 
+                               '</td><td>' + result.data[i].address + 
+                               '</td><td><button type="button" class="btn btn-success btn-xs" id="'+ 
+                               result.data[i].phoneNum + '" onclick="modal('　+ 
+                               result.data[i].phoneNum +　')" disabled>审批</button></td></tr>';
+                       }
+                    }
+                    $("#approvalMsg tr:not(:first)").html("");
+                    $("#approvalMsg").append(str);
+                }
+             }
+          });
+       }
+       
+       //已审批
+       function Appr(){
+           //alert("2");
+           $.ajax({
+             url:'before/getCustInfo/1?state=10F',
+             type:'get',
+             success:function(result){
+                if(result.success){
+                    //var id = document.getElementById('approvalMsg');
+                    var str = "";
+                    for(var i=0;i<result.data.length;i++){
+                        str += '<tr><td>' + result.data[i].name + 
+                               '</td><td>' + result.data[i].sex + 
+                               '</td><td>'+ result.data[i].phoneNum + 
+                               '</td><td>' + result.data[i].idCardNum + 
+                               '</td><td>' + result.data[i].address + 
+                               '</td><td><button type="button" class="btn btn-success btn-xs" id="'+ 
+                               result.data[i].phoneNum + '" onclick="modal('　+ 
+                               result.data[i].phoneNum +　')" disabled>审批</button></td></tr>';
+                    }
+                    $("#approvalMsg tr:not(:first)").html("");
+                    $("#approvalMsg").append(str);
+                }
+             }
+          });
+       }
+        //未审批
+        function noAppr(){
+           //alert("3");
+           $.ajax({
+             url:'before/getCustInfo/1?state=10N',
+             type:'get',
+             success:function(result){
+                if(result.success){
+                    //var id = document.getElementById('approvalMsg');
+                    var str = "";
+                    for(var i=0;i<result.data.length;i++){
+                        str += '<tr><td>' + result.data[i].name + 
+                               '</td><td>' + result.data[i].sex + 
+                               '</td><td>'+ result.data[i].phoneNum + 
+                               '</td><td>' + result.data[i].idCardNum + 
+                               '</td><td>' + result.data[i].address + 
+                               '</td><td><button type="button" class="btn btn-success btn-xs" id="'+ 
+                               result.data[i].phoneNum + '" onclick="modal('　+ 
+                               result.data[i].phoneNum +　')">审批</button></td></tr>';
+                    }
+                    $("#approvalMsg tr:not(:first)").html("");
+                    $("#approvalMsg").append(str);
+                }
+             }
+          });
+       }
+       //审批模态框
+       function modal(id){
+             $("#mymodal").modal();
+             var pass = document.getElementById('pass');
+                 pass.name = id;
+             var nopass = document.getElementById('nopass');
+                 nopass.name = id;
+       }
+       //审核通过
+      function pass(phoneNum){
+          //alert(phoneNum);
+          var phone_num = phoneNum;
+          $.ajax({
+             url:'before/updateCustInfo',
+             type:'post',
+             dataType:'json',
+             data:{phone_num:phone_num},
+             success:function(result){
+                  if(result.success){
+                     alert("提交成功");
+                     location.reload();
+                  }
+             },
+              error:function(err){
+                    alert("提交失败");
+                    location.reload();
+             }
+          })
+       }
+       //审核不通过
+       function nopass(phoneNum){
+          //alert(phoneNum);
+          var phone_num = phoneNum;
+          var message = document.getElementById('noPassMsg').value;
+          $.ajax({
+             url:'before/updateCustInfo',
+             type:'post',
+             dataType:'json',
+             data:{
+             phone_num:phone_num,
+             error_log:message
+             },
+             success:function(result){
+                  if(result.success){
+                     alert("提交成功");
+                     location.reload();
+                  }
+             },
+             error:function(err){
+                alert("提交失败");
+                location.reload();
+             }
+          })
+       }
+   
+   </script>
+  </body>
+</html> 

@@ -1,0 +1,20 @@
+package com.dnf.cache;
+
+import java.util.Date;
+
+public class CacheTest {
+	public static void main(String[] args) throws InterruptedException{
+		CacheManager.putContent("smsNum", "123456", 60000);
+		while(true){
+			Cache smsCache = CacheManager.getContent("smsNum");
+			if(!smsCache.isExpired()){
+				System.out.println("获取的smsNum:" + smsCache.getValue().toString() + "  " + new Date().getTime());
+				Thread.sleep(10000);
+			}else{
+				System.out.print("cache已过期");
+				CacheManager.invalidate("smsNum");
+				break;
+			}
+		}	
+	}
+}

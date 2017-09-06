@@ -1,0 +1,158 @@
+package com.dnf.web;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.dnf.cache.Cache;
+import com.dnf.cache.CacheManager;
+import com.dnf.entity.Customer;
+import com.dnf.service.CustomerService;
+import com.dnf.utils.RegExputils;
+import com.dnf.utils.Result;
+import com.dnf.utils.SendMessage;
+
+@Controller
+@RequestMapping("/")
+public class RegisterController {
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	@Autowired
+	private CustomerService customerService;
+	
+	@RequestMapping("/register")
+	public String getRegisterPage(HttpServletRequest request){
+		return "register";
+	}
+	
+	@RequestMapping(value="/checkPhone", method=RequestMethod.POST)
+	@ResponseBody
+	public Result checkPhoneNum(HttpServletRequest request){
+		String phoneNum = request.getParameter("phone_num");
+		if(phoneNum != null){
+//			校验手机号码格式
+			if(!RegExputils.regexPhoneNum(phoneNum)){
+				return new Result(false, "手机号码格式错误");
+			}
+//			数据库中查询是否存在该用户
+			Customer cust = customerService.queryByPhoneNum(phoneNum);
+			if(cust != null){
+				return new Result(false, "该手机号码已注册");
+			}else {
+				return new Result(true, null);
+			}
+		}
+		return new Result(false, "手机号码不能为空");
+	}
+	
+	@RequestMapping(value="/getSmsNum", method=RequestMethod.POST)
+	@ResponseBody
+	public Result getSmsNum(HttpServletRequest request){
+		String phoneNum = request.getParameter("phone_num");
+		if(phoneNum != null){
+			if(!RegExputils.regexPhoneNum(phoneNum)){
+				return new Result(false, "手机号码格式错误");
+			}
+			
+//			调用接口发送短信
+			String smsNum = RegExputils.getSmsNum();
+			SendMessage sm = new SendMessage("d20decc373155e74e46498551030457a");
+			Map<String, String> map = new HashMap<String, String>();
+			
+//			暂定写死为13710004531
+			phoneNum = "13710004531";
+	    	map.put("mobile", phoneNum);
+	    	map.put("message", "尊敬的用户：您好，欢迎使用贷你飞金融服务，您的验证码为：" + smsNum +  "，5分钟内有效。【铁壳测试】"); //符合该注册账号中的短信模板会提高发送速度
+//	        String telResponse =  sm.MessageExecuteMethod(map);
+	    	String telResponse = "发送成功";
+	        logger.info("发送结果：" + telResponse + "  验证码" + smsNum);
+//	        Map<String, String> userResponse =  sm.UserInfoSearchMethod();
+//	        logger.info("User_code: " + userResponse.get("code") );
+//	        logger.info("Remain_counts: " + userResponse.get("counts") );
+	        
+//	       	 将验证码存入缓存中设定有效时间为5分钟
+	        if(telResponse.equals("发送成功")){
+//	        	判断缓存中是否存在验证码，有则作废
+				Cache memory = CacheManager.getContent(phoneNum+"sms");
+				if(memory != null){
+					CacheManager.invalidate(phoneNum+"sms");
+				}
+	        	CacheManager.putContent(phoneNum+"sms", smsNum, 300000);
+	        	return new Result(true, null);
+	        }else{
+	        	return new Result(false, "手机验证码发送失败");
+	        }
+	        
+		}else{
+			return new Result(false, "手机号码不能为空");
+		}
+	}
+	
+	@RequestMapping(value="/register.action", method=RequestMethod.POST)
+	@ResponseBody
+	public Result register(HttpServletRequest request){
+		String phoneNum = request.getParameter("phone_num");
+		String password = request.getParameter("password");
+		String smsNum = request.getParameter("sms_num");
+		Result checkResult = checkRegisterData(phoneNum, password, smsNum);
+		if(!checkResult.isSuccess()){
+//			校验失败
+			return checkResult;
+		}else{
+			try{
+				int i = customerService.insert2Customers(phoneNum, password);
+				logger.info("注册结果i = " + i);
+				if(i == 0){
+					return new Result(true, null);
+				}else{
+					return new Result(false, "注册失败,请稍后再试");
+				}
+			}catch(Exception e){
+				logger.error(e.getMessage());
+				return new Result(false, "注册异常，请稍后再试");
+			}
+		}		
+	}
+	
+	
+	private Result checkRegisterData(String phoneNum, String password, String smsNum){
+		if(phoneNum == null){
+			return new Result(false, "手机号码为空");
+		}else{
+			if(!RegExputils.regexPhoneNum(phoneNum)){
+				return new Result(false, "手机号格式错误");
+			}
+		}
+		
+		if(password == null)
+			return new Result(false, "密码不能为空");
+		
+		Cache smsCache = CacheManager.getContent(phoneNum+"sms");
+		if(smsCache == null){
+			return new Result(false, "验证码错误，请刷新页面");
+		}else{
+			if(smsCache.isExpired()){
+				CacheManager.invalidate(phoneNum+"sms");
+				return new Result(false, "验证码已过期，请刷新页面");
+			}else{
+				if(!smsNum.equals(smsCache.getValue().toString())){
+					CacheManager.invalidate(phoneNum+"sms");
+					return new Result(false, "验证码错误，请刷新页面");
+				}else{
+					CacheManager.invalidate(phoneNum+"sms");
+					return new Result(true, null);
+				}
+			}
+		}
+		
+	}
+}

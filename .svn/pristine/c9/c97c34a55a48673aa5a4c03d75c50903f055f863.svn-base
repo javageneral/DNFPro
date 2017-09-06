@@ -1,0 +1,160 @@
+package com.dnf.dto;
+
+import com.dnf.entity.CustAmount;
+import com.dnf.entity.CustInfo;
+import com.dnf.entity.Customer;
+
+public class CustMsg {
+	long id;
+	String phoneNum;
+	String name;
+	String idCardNum;
+	String city;
+	String cityCode;
+	String sex;
+	String creditCardNum;
+	String address;
+	String idCardUpPhoto;
+	String idCardDownPhoto;
+	String loanAmount;
+	String usedAmount;
+	String restAmount;
+
+	public long getId() {
+		return id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
+	public String getPhoneNum() {
+		return phoneNum;
+	}
+	public void setPhoneNum(String phoneNum) {
+		this.phoneNum = phoneNum;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getIdCardNum() {
+		return idCardNum;
+	}
+	public void setIdCardNum(String idCardNum) {
+		this.idCardNum = idCardNum;
+	}
+	public String getCity() {
+		return city;
+	}
+	public void setCity(String city) {
+		this.city = city;
+	}
+	public String getCityCode() {
+		return cityCode;
+	}
+	public void setCityCode(String cityCode) {
+		this.cityCode = cityCode;
+	}
+	public String getSex() {
+		return sex;
+	}
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+	public String getCreditCardNum() {
+		return creditCardNum;
+	}
+	public void setCreditCardNum(String creditCardNum) {
+		this.creditCardNum = creditCardNum;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public String getIdCardUpPhoto() {
+		return idCardUpPhoto;
+	}
+	public void setIdCardUpPhoto(String idCardUpPhoto) {
+		this.idCardUpPhoto = idCardUpPhoto;
+	}
+	public String getIdCardDownPhoto() {
+		return idCardDownPhoto;
+	}
+	public void setIdCardDownPhoto(String idCardDownPhoto) {
+		this.idCardDownPhoto = idCardDownPhoto;
+	}
+	public String getLoanAmount() {
+		return loanAmount;
+	}
+	public void setLoanAmount(String loanAmount) {
+		this.loanAmount = loanAmount;
+	}
+	public String getUsedAmount() {
+		return usedAmount;
+	}
+	public void setUsedAmount(String usedAmount) {
+		this.usedAmount = usedAmount;
+	}
+	public String getRestAmount() {
+		return restAmount;
+	}
+	public void setRestAmount(String restAmount) {
+		this.restAmount = restAmount;
+	}
+	public CustMsg() {
+		super();
+	}
+	
+	public CustMsg(long id, String phoneNum, String name, String idCardNum,
+			String city, String cityCode, String sex, String creditCardNum,
+			String address, String idCardUpPhoto, String idCardDownPhoto,
+			String loanAmount, String usedAmount, String restAmount) {
+		super();
+		this.id = id;
+		this.phoneNum = phoneNum;
+		this.name = name;
+		this.idCardNum = idCardNum;
+		this.city = city;
+		this.cityCode = cityCode;
+		this.sex = sex;
+		this.creditCardNum = creditCardNum;
+		this.address = address;
+		this.idCardUpPhoto = idCardUpPhoto;
+		this.idCardDownPhoto = idCardDownPhoto;
+		this.loanAmount = loanAmount;
+		this.usedAmount = usedAmount;
+		this.restAmount = restAmount;
+	}
+	public CustMsg(Customer customer, CustInfo info, CustAmount amount){
+		this.id = customer.getId();
+		this.phoneNum = customer.getPhoneNum();
+		this.name = info.getName();
+		this.idCardNum = info.getIdCardNum();
+		this.city = info.getCity();
+		this.cityCode = info.getCityCode();
+		this.sex = info.getSex();
+		this.creditCardNum = info.getCreditCardNum();
+		this.address = info.getAddress();
+		this.idCardUpPhoto = info.getIdCardUpPhoto();
+		this.idCardDownPhoto = info.getIdCardDownPhoto();
+		this.loanAmount = amount.getLoanAmount();
+		this.usedAmount = amount.getUsedAmount();
+		this.restAmount = amount.getRestAmount();
+	}
+	@Override
+	public String toString() {
+		return "CustMsg [id=" + id + ", phoneNum=" + phoneNum + ", name="
+				+ name + ", idCardNum=" + idCardNum + ", city=" + city
+				+ ", cityCode=" + cityCode + ", sex=" + sex
+				+ ", creditCardNum=" + creditCardNum + ", address=" + address
+				+ ", idCardUpPhoto=" + idCardUpPhoto + ", idCardDownPhoto="
+				+ idCardDownPhoto + ", loanAmount=" + loanAmount
+				+ ", usedAmount=" + usedAmount + ", restAmount=" + restAmount
+				+ "]";
+	}
+	
+	
+}

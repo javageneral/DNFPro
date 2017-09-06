@@ -1,0 +1,49 @@
+package com.dnf.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.stereotype.Component;
+
+import com.dnf.cache.CacheManager;
+import com.dnf.dao.CustomerDao;
+import com.dnf.entity.City;
+
+@Component("InitListener") 
+public class InitListener implements  ApplicationListener<ContextRefreshedEvent>{
+	private static Map<String, String> cityMap;
+	
+	private static Logger logger = LoggerFactory.getLogger(InitListener.class);
+	
+	private static List<City> list;
+	
+	@Autowired
+	private CustomerDao dao;
+	
+	@Override
+	public void onApplicationEvent(ContextRefreshedEvent  event) {
+		// TODO Auto-generated method stub
+		logger.info("spring准备加载缓存");
+		if (event.getApplicationContext().getParent() == null) { 
+			list = dao.query4CityName();
+			if(list != null){
+				CacheManager.putContent("cityList", list, -1);
+			}
+			if( cityMap == null){
+				cityMap = new HashMap<String, String>();
+				for(City city : list){
+					cityMap.put(city.getCityCode(), city.getCity());
+				}
+				CacheManager.putContent("cityMap", cityMap, -1);
+			}
+			logger.info("spring初始化加载缓存完毕"); 
+			
+		} 
+	}
+}

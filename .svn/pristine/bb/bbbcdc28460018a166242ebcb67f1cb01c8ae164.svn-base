@@ -1,0 +1,33 @@
+package com.dnf.utils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.dnf.dao.CustomerDao;
+import com.dnf.entity.City;
+
+public class StaticMap {
+	private static Map<String, String> cityMap;
+	
+	@Autowired
+	private static CustomerDao dao;
+	
+	public static Map getCityMap(){
+		if( cityMap == null){
+			cityMap = new HashMap<String, String>();
+			List<City> list = dao.query4CityName();
+			for(City city : list){
+				cityMap.put(city.getCityCode(), city.getCity());
+			}
+		}
+		return cityMap;
+	}
+	
+    private StaticMap() {  
+        super();  
+	}  
+
+}

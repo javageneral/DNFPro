@@ -1,0 +1,15 @@
+package com.dnf.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.dnf.entity.CustInfo;
+
+public interface BeforeLoanDao {
+//	查询所有等待审核的客户信息
+	List<CustInfo> query4customerInfo10N(@Param("offset") int offset, @Param("limit") int limit);
+	
+//	查询所有等待审核的客户信息数量
+	int query4countInfo10N();
+}

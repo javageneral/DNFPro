@@ -1,0 +1,21 @@
+package com.dnf.service;
+
+import java.util.List;
+
+import com.dnf.entity.City;
+import com.dnf.entity.CustAmount;
+import com.dnf.entity.CustInfo;
+import com.dnf.entity.Customer;
+
+public interface CustomerService {
+	
+	Customer queryByPhoneNum(String phoneNum);
+	
+	int insert2Customers(String phoneNum, String password);
+	
+	CustInfo query4CustInfoByPhoneNum(String phoneNum);
+	
+	CustAmount query4CustAmountByPhoneNum(String phoneNum);
+	
+	List<City> query4CityName();
+}

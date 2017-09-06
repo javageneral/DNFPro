@@ -1,0 +1,41 @@
+package com.dnf.service;
+
+import java.util.Date;
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.dnf.entity.City;
+import com.dnf.entity.CustAmount;
+import com.dnf.entity.CustInfo;
+import com.dnf.entity.Customer;
+import com.dnf.entity.OrderMessage;
+
+public interface CustomerService {
+	
+	Customer queryByPhoneNum(String phoneNum);
+	
+//	客户注册时插入账号
+	int insert2Customers(String phoneNum, String password);
+	
+	CustInfo query4CustInfoByPhoneNum(String phoneNum);
+	
+//	根据客户账号查询客户账户
+	CustAmount query4CustAmountByPhoneNum(String phoneNum);
+	
+	
+//	客户填写个人资料插入数据库
+	int insert2CustomerInfo(long id, String phoneNum, String name, String idCardNum, String city,
+			String cityCode, String sex,String address, String idCardUpPhoto, String idCardDownPhoto, 
+			String state, Date createDate);
+	
+//	初始化客户账户额度
+	int insert2customerAmount(long id, String phoneNum, int loanAmount, 
+			int usedAmount, int restAmount, String creditCardNum );
+
+//  插入客户贷款认证数据
+	int insert2customerLoan(String orderId,String msgType,String state, String phoneNum,String orderMsg,
+			Date createDate,String cityCode,Date loanTime);
+	
+	List<OrderMessage> query4OrderMessage(String sql);
+}

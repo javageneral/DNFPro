@@ -1,0 +1,182 @@
+package com.dnf.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.dnf.dao.BeforeLoanDao;
+import com.dnf.dto.CustMsg;
+import com.dnf.dto.WorkMsg;
+import com.dnf.entity.CustInfo;
+import com.dnf.entity.OrderMessage;
+import com.dnf.service.BeforeLoanService;
+import com.dnf.utils.Orderutils;
+import com.dnf.utils.Result;
+
+@Service
+public class BeforeLoanServiceImpl implements BeforeLoanService {
+	
+	@Autowired
+	private BeforeLoanDao dao;
+	
+	Logger logger = LoggerFactory.getLogger(BeforeLoanServiceImpl.class);
+	
+	@Override
+	public Result query4customerInfo10N(int offset, int limit, int page) {
+		// TODO Auto-generated method stub
+		int total = dao.query4countInfo10N();
+		List<CustInfo> list = dao.query4customerInfo10N(offset, limit);
+		List<CustMsg> msg = new ArrayList<CustMsg>();
+		for(CustInfo cust : list){
+			msg.add(new CustMsg(cust));
+		}
+		Result result = new Result(true, msg, page, total);		
+		return result;
+	}
+	
+	@Override
+	public Result query4OrderMessage(int offset, int limit, int page) {
+		int total = dao.query4CountOrdermsg();
+		List<OrderMessage> list = dao.query4OrderMessage(offset, limit);
+		List<WorkMsg> msg = new ArrayList<WorkMsg>();	
+		for(OrderMessage orderMsg : list){
+			WorkMsg workmsg = Orderutils.processOrderxml(orderMsg);
+			if(workmsg != null){
+				msg.add(workmsg);
+			}
+		}
+		return new Result(true, msg, page, total);
+	}
+	
+	@Override
+	public Result update4customerInfo210F(String phoneNum) {
+		// TODO Auto-generated method stub
+		try{
+			int i = dao.update4customerInfo210F(phoneNum, new Date());
+			if(i == 1){
+				return new Result(true, null);
+			}else{
+				return new Result(false, "更新失败");
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			return new Result(false, "更新失败");
+		}
+	}
+
+	@Override
+	public Result update4custInfoErrorLog(String log, String phoneNum) {
+		// TODO Auto-generated method stub
+		try{
+			int i = dao.update4custInfoErrorLog(log, phoneNum, new Date());
+			if(i == 1){
+				return new Result(true, null);
+			}else{
+				return new Result(false, "更新失败");
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			return new Result(false, "更新失败");
+		}
+	}
+	
+	@Override
+	public Result query4custInfo(String phoneNum, String name,
+			String idCardNum, String cityCode, String sex, int page) {
+		// TODO Auto-generated method stub
+		String sql = "SELECT id, phone_num, name, id_card_num, city, city_code, sex, address, " +
+				"id_card_up_photo, id_card_down_photo, state, create_date, review_date, error_log " +
+				"FROM customerInfo";
+		sql = sql + this.getWhereSql(phoneNum, name, idCardNum, cityCode, sex);
+		sql = sql + "LIMIT 10 OFFSET " + String.valueOf((page-1)*10);
+		String countSql = "SELECT count(*) FROM customerInfo" + this.getWhereSql(phoneNum, name, idCardNum, cityCode, sex);
+		try{
+			int total = dao.query4custInfoCount(countSql);
+			List<CustInfo> list = dao.query4custInfo(sql);
+			return new Result(true, list, page, total);
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			return new Result(false, "查询失败");
+		}
+	}
+
+	//	生成模糊查询sql的where语句
+	private String getWhereSql(String phoneNum, String name, String idCardNum, String cityCode, String sex){
+		String where = "WHERE 1=1 ";
+		if(phoneNum != null){
+			where = where + "and phone_num like '%" + phoneNum + "%' ";
+		}
+		if(name != null){
+			where = where + "and name like '%" + name + "%' ";
+		}
+		if(idCardNum != null){
+			where = where + "and id_card_num like '%" + idCardNum + "%' ";
+		}
+		if(cityCode != null){
+			where = where + "and city_code like '%" + cityCode + "%' ";
+		}
+		if(sex != null){
+			where = where + "and sex ='" + sex + "' ";
+		}
+		return where;
+	}
+	
+	@Override
+	public Result update4OrderErrorLog(String log, String orderId) {
+		try{
+			int i = dao.update4OrderErrorLog(log, orderId, new Date());
+			if(i == 1){
+				return new Result(true, null);
+			} else {
+				return new Result(false, "更新失败");
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			return new Result(false, "更新失败");
+		}
+	}
+	
+
+	public int insert4OrderMessage(String orderId,String msgType,String state, String phoneNum,String orderMsg,
+			Date createDate,String cityCode,Date loanTime){
+		return dao.insert4OrderMessage(orderId, msgType, state, phoneNum, orderMsg,
+				createDate, cityCode, loanTime);
+	}
+	
+	public OrderMessage query4OrderMessage10F(String orderId){
+		return dao.query4OrderMessage10F(orderId);
+	}
+
+	@Override
+	public Result update4OrderMessage(String orderId) {
+		// TODO Auto-generated method stub
+		OrderMessage msg = dao.query4OrderMessage10F(orderId);
+		if(msg == null){
+			return new Result(false, "订单错误");
+		}
+		try{
+			int i = dao.update4OrderMessage(orderId, new Date());
+			if(i == 1){
+				int j = dao.insert4OrderMessage(msg.getOrderId(), "1005", "10N", msg.getPhoneNum(), msg.getOrderMsg(), 
+						new Date(), msg.getCityCode(), new Date(msg.getLoanTime()));
+				return new Result(true, null);
+			}else{
+				return new Result(false, "更新失败");
+			}
+		}catch(Exception e){
+			return new Result(false, "更新失败");
+		}
+	}
+	
+	
+	
+}

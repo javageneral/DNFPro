@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dnf.dao.BeforeLoanDao">
+	<select id="query4customerInfo10N" resultType="CustInfo">
+		${value}
+	</select>
+
+	<select id="query4countInfo10N" resultType="Integer">
+		SELECT
+			count(*)
+		FROM
+			customerInfo
+		WHERE
+			state='10N'
+	</select>
+	
+	<select id="query4OrderMessage" resultType="OrderMessage">
+		SELECT
+			id, order_id, msg_type, state, phone_num, order_msg, create_date,
+			review_date, error_log, city_code, loan_time, ext1
+		FROM
+			dnf_order_msg
+		WHERE
+			state='10N'
+		LIMIT #{limit}
+		OFFSET #{offset}
+	</select>
+	
+	<select id="query4CountOrdermsg" resultType="Integer">
+		SELECT
+			count(*)
+		FROM
+			dnf_order_msg
+		WHERE
+			state='10N'
+	</select>
+	
+	<update id="update4customerInfo210F">
+		UPDATE 
+			customerInfo
+		SET
+			state='10F', review_date=#{nowDate}
+		WHERE
+			phone_num=#{phoneNum}
+	</update>
+	
+	<update id="update4custInfoErrorLog">
+		UPDATE 
+			customerInfo
+		SET
+			error_log=#{log}, review_date=#{nowDate}
+		WHERE
+			phone_num=#{phoneNum}
+	</update>
+	
+	
+	<select id="query4custInfobyName" resultType="CustInfo">
+		SELECT 
+			id, phone_num, name, id_card_num, city, city_code, sex, address,
+			id_card_up_photo,
+			id_card_down_photo, state, create_date, review_date, error_log
+		FROM 
+			customerInfo
+		WHERE
+			name like #{name}
+		LIMIT #{limit}
+		OFFSET #{offset}
+	</select>
+	
+	<select id="query4custInfobyPhoneNum" resultType="CustInfo">
+		SELECT 
+			id, phone_num, name, id_card_num, city, city_code, sex, address,
+			id_card_up_photo,
+			id_card_down_photo, state, create_date, review_date, error_log
+		FROM 
+			customerInfo
+		WHERE
+			phone_num like #{phoneNum}
+		LIMIT #{limit}
+		OFFSET #{offset}
+	</select>
+	
+	<select id="query4custInfo" resultType="CustInfo">
+		${value}
+	</select>
+	
+	<select id="query4custInfoCount" resultType="Integer">
+		${value}
+	</select>
+		
+	<update id="updateOrderMessage" > 
+		UPDATE
+			dnf_order_msg
+		SET
+			state='10F', review_date=#{nowDate}
+		WHERE
+			order_id=#{orderId}
+			
+	</update>
+	
+	<insert id="insert4OrderMessage">
+		INSERT INTO
+			dnf_order_msg(order_id, msg_type, state, phone_num, order_msg, create_date, 
+			 city_code, loan_time)
+		VALUES
+			(#{orderId}, #{msgType}, #{state}, #{phoneNum}, #{orderMsg}, #{createDate},
+			 #{cityCode}, #{loanTime})
+	</insert>
+	
+	<update id="update4OrderErrorLog">
+		UPDATE
+			dnf_order_msg
+		SET
+			error_log=#{log}, review_date=#{nowDate}
+		WHERE
+			order_id=#{orderId}
+	</update>
+	
+	<select id="query4OrderMessage10F" resultType="OrderMessage">
+		SELECT
+			id, order_id, msg_type, state, phone_num, order_msg, create_date,
+			city_code, loan_time
+		FROM
+			dnf_order_msg
+		WHERE
+			order_id = #{orderId}
+	</select>
+	
+</mapper>

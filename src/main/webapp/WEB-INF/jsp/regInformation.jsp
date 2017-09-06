@@ -1,0 +1,76 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <base href="<%=basePath%>">
+    
+    <title>用户添加信息</title>
+    
+  	<meta http-equiv="pragma" content="no-cache">
+  	<meta http-equiv="cache-control" content="no-cache">
+  	<meta http-equiv="expires" content="0">    
+  	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+  	<meta http-equiv="description" content="This is my page">
+  	
+  	<link rel="stylesheet" type="text/css" href="resources/css/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="resources/css/regInformation.css" />
+    <link rel="stylesheet" type="text/css" href="resources/css/bootstrap.css.map" />
+  </head>
+  
+  <body>
+    	<h2 class="text-center title">用户完善个人信息</h2>
+    	<form class="container body_form">
+             <div class="form_box">
+                  <input id="phone_num" type="text" class="form-control form_input" value="${ customer.phoneNum }"  disabled="disabled">
+
+                  <input id="name" type="text" class="form-control form_input" onblur="check_name()" name="" placeholder="请输入姓名" style="display:inline">
+                  <span id="name_err" class="err_msg"></span>
+
+                  <select id="sex" class="form-control form_input">
+                      <option>男</option>
+                      <option>女</option>
+                  </select>
+
+                  <input id="id_card_num" type="text" class="form-control form_input" name="" placeholder="请输入身份证号码" onblur="check_id_card()" style="display:inline">
+                  <sapn id="id_card_num_err" class="err_msg"></sapn>
+
+                  <input id="bank_card_num" type="text" class="form-control form_input" name="" placeholder="请输入银行卡号" onblur="check_bank_card()" style="display:inline">
+                  <sapn id="bank_card_num_err" class="err_msg"></sapn>
+
+                  <select id="city"  class="form-control form_input">
+                     <option>请选择城市</option>
+                  </select>
+
+                  <input id="address" type="text" class="form-control form_input" name="" placeholder="请输入住址" onblur="check_address()" style="display:inline">
+                  <span id="address_err" class="err_msg"></span>
+              </div>
+              <div class="file_photo_box">
+                  <div class="positive">  
+                     <p class="photo_msg">身份证正面照片：</p>  
+                     <img id="positive" class="positive_img" src="resources/customer/system/id_card_up_photo.png" width="300" height="187">
+                     <input type="file" id="id_card_up_photo" name="id_card_up_photo" />
+                     <input type="button" value="上传" onclick="uploadIdupPhoto()"/>
+                  </div>
+                  <div class="reverse">
+                     <p class="photo_msg">身份证反面照片：</p> 
+                     <img id="reverse" class="reverse_img" src="resources/customer/system/id_card_down_photo.png" width="300" height="187" >
+                     <input type="file" id="id_card_down_photo" name="id_card_down_photo" />
+                     <input type="button" value="上传" onclick="uploadIddownPhoto()"/>
+                  </div> 
+              </div>
+              <input id="_csrf" type="hidden" value=${ _csrf} />
+              <input id="regInfoSubmit" type="button" class="btn btn-success btn-lg btn_input" value="提交">
+    	</form>
+    
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="resources/js/ajaxfileupload.js"></script>
+    <script type="text/javascript" src="resources/js/bootstrap.js"></script>
+    <script type="text/javascript" src="resources/js/regInformation.js"></script>
+  </body>
+</html>
+ 

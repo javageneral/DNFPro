@@ -1,0 +1,88 @@
+package com.dnf.dao;
+
+import java.util.List;
+
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.dnf.BaseTest;
+import com.dnf.entity.CustInfo;
+import com.dnf.service.BeforeLoanService;
+import com.dnf.utils.Result;
+
+public class BeforeLoanTest extends BaseTest{
+	
+	@Autowired
+	private BeforeLoanDao dao;
+	
+	@Autowired
+	private BeforeLoanService service;
+	
+	@Test
+	public void test10NInfo(){
+		List<CustInfo> list = dao.query4customerInfo10N(20, 10);
+		int total = dao.query4countInfo10N();
+		System.out.println("  +++  " + total );
+		for(CustInfo cust : list){
+			System.out.println(cust.toString());
+		}
+//		int i = dao.update4customerInfo210F("13710004533");
+//		System.out.println(i);
+	}
+	
+	@Test
+	public void searchName(){
+		String name = "%黎%";
+//		List<CustInfo> list = dao.query4custInfobyName(name);
+//		List<CustInfo> list = dao.query4custInfobyPhoneNum("%371%", 10, 10);
+		String sql = "select * from customerInfo";
+		List<CustInfo> list = dao.query4custInfo(sql);
+		for(CustInfo i : list){
+			System.out.println(i.toString());
+		}
+	}
+	
+	
+//	查询所有等待审核的客户信息
+	@Test
+	public void testAllcust(){
+		Result result = service.query4customerInfo10N(0, 10, 1);
+		System.out.println(result.toString());
+	}
+	
+//  查询所有等待审核的客户的订单信息
+	@Test
+	public void testAllOrders(){
+		Result result = service.query4OrderMessage(0, 10, 1);
+		System.out.println(result.toString());
+	}
+	
+//	通过审核后更新客户信息状态
+	@Test
+	public void testupdatecust(){
+		Result result = service.update4customerInfo210F("13710004530");
+		System.out.println(result.toString());
+	}
+	
+	
+//	审核不通过更新客户errorlog
+	@Test
+	public void testUpdateErrlog(){
+		Result result = service.update4custInfoErrorLog("信息不全", "13710004532");
+		System.out.println(result.toString());
+	}
+	
+//	根据条件模糊查询客户信息
+	@Test
+	public void testSearch(){
+		String phoneNum = "1371000";
+		String name = null;
+		String idCardNum = null;
+		String cityCode = null;
+		String sex = null;
+		Result result = service.query4custInfo(phoneNum, name, idCardNum, cityCode, sex, 1);
+		System.out.println(result.toString());
+	}
+	
+	
+}

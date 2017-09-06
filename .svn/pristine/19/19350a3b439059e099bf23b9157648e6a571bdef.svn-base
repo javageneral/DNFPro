@@ -1,0 +1,9 @@
+package com.dnf.service;
+
+import com.dnf.entity.Staff;
+
+public interface StaffService {
+	Staff queryByUsername(String userName);
+	
+	int insert2Staffs(String userName,String password);
+}

@@ -1,0 +1,428 @@
+package com.dnf.service.impl;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.dnf.cache.Cache;
+import com.dnf.cache.CacheManager;
+import com.dnf.dao.CustomerDao;
+import com.dnf.dto.CustMsg;
+import com.dnf.dto.WorkMsg;
+import com.dnf.entity.CustAmount;
+import com.dnf.entity.CustInfo;
+import com.dnf.entity.Customer;
+import com.dnf.entity.OrderMessage;
+import com.dnf.service.CustomerService;
+import com.dnf.utils.FileUpload;
+import com.dnf.utils.Orderutils;
+import com.dnf.utils.RegExputils;
+import com.dnf.utils.Result;
+import com.dnf.utils.SendMessage;
+
+@Service
+public class CustomerServiceImpl implements CustomerService {
+
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	@Autowired
+	private CustomerDao dao;
+
+	@Override
+	public Result checkPhoneidUsed(String phoneNum){
+		if(phoneNum != null){
+//			校验手机号码格式
+			if(!RegExputils.regexPhoneNum(phoneNum)){
+				return new Result(false, "手机号码格式错误");
+			}
+//			数据库中查询是否存在该用户
+			Customer cust = dao.queryByPhoneNum(phoneNum);
+			if(cust != null){
+				return new Result(false, "该手机号码已注册");
+			}else {
+				return new Result(true, null);
+			}
+		}
+		return new Result(false, "手机号码不能为空");
+	}
+
+	
+	
+	@Override
+	public Result getSmsCode(String phoneNum) {
+		// TODO Auto-generated method stub
+		if(phoneNum != null){
+			if(!RegExputils.regexPhoneNum(phoneNum)){
+				return new Result(false, "手机号码格式错误");
+			}
+			
+//			调用接口发送短信
+			String smsNum = RegExputils.getSmsNum();
+			SendMessage sm = new SendMessage("d20decc373155e74e46498551030457a");
+			Map<String, String> map = new HashMap<String, String>();
+			
+//			暂定写死为13710004531
+			String sendSmsPhoneNum = "13710004531";
+	    	map.put("mobile", sendSmsPhoneNum);
+	    	map.put("message", "尊敬的用户：您好，欢迎使用贷你飞金融服务，您的验证码为：" + smsNum +  "，5分钟内有效。【铁壳测试】"); //符合该注册账号中的短信模板会提高发送速度
+//	        String telResponse =  sm.MessageExecuteMethod(map);
+	    	String telResponse = "发送成功";
+	        logger.info("发送结果：" + telResponse + "  验证码" + smsNum);
+//	        Map<String, String> userResponse =  sm.UserInfoSearchMethod();
+//	        logger.info("User_code: " + userResponse.get("code") );
+//	        logger.info("Remain_counts: " + userResponse.get("counts") );
+	        
+//	       	 将验证码存入缓存中设定有效时间为5分钟
+	        if(telResponse.equals("发送成功")){
+//	        	判断缓存中是否存在验证码，有则作废
+				Cache memory = CacheManager.getContent(phoneNum+"sms");
+				if(memory != null){
+					CacheManager.invalidate(phoneNum+"sms");
+				}
+	        	CacheManager.putContent(phoneNum+"sms", smsNum, 300000);
+	        	logger.info(CacheManager.getContent(phoneNum+"sms").getValue().toString() + "缓存验证码" + phoneNum);
+	        	return new Result(true, null);
+	        }else{
+	        	return new Result(false, "手机验证码发送失败");
+	        }
+	        
+		}else{
+			return new Result(false, "手机号码不能为空");
+		}
+	}
+
+	@Override
+	public Result register(String phoneNum, String password, String smsNum) {
+		Result checkResult = checkRegisterData(phoneNum, password, smsNum);
+		if(!checkResult.isSuccess()){
+			return checkResult; //校验失败
+		}else{
+			try{
+				int i = dao.insert2Customers(phoneNum, password);
+				logger.info("注册结果i = " + i);
+				if(i == 1){
+					return new Result(true, null);
+				}else{
+					return new Result(false, "注册失败,请稍后再试");
+				}
+			}catch(Exception e){
+				logger.error(e.getMessage());
+				return new Result(false, "注册异常，请稍后再试");
+			}
+		}		
+	}
+	
+	@Override
+	public Result custLogin(String phoneNum, String password) {
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		if(!RegExputils.regexPhoneNum(phoneNum)){
+			return new Result(false, "手机号码格式错误");
+		}
+		
+		Customer customer = dao.queryByPhoneNum(phoneNum);
+		if(customer != null){
+			logger.info("登录查询customer：" + customer.toString());
+			if(password.equals(customer.getPassword())){
+				map.put("customer", customer);
+//				校验用户是否填写个人信息
+				CustInfo info = dao.query4CustInfoByPhoneNum(phoneNum);
+				if(info != null){
+					logger.info("用户：" + phoneNum + "已经填写个人信息" );
+					map.put("custInfo", info);
+//					获取用户账户
+					CustAmount amount = dao.query4CustAmountByPhoneNum(phoneNum);
+					logger.info("用户：" + phoneNum + "的账户:" + amount.toString());
+					CustMsg customerMsg = new CustMsg(customer, info, amount);
+					map.put("customerMsg", customerMsg);
+				}
+				return new Result<Map<String, Object>>(true, map);
+			}else{
+				return new Result(false, "密码错误");
+			}
+		}else {
+			return new Result(false, "该用户不存在");
+		}
+	}
+
+	@Override
+	public Result registerInfo(Customer cust, String name, String idCardNum, String cityCode, String sex, String address,
+			String idCardUpPhoto, String idCardDownPhoto, String creditCardNum) {
+		// TODO Auto-generated method stub
+		
+//		初始化额度
+		int loanAmount = 5000;
+		int restAmount = loanAmount;
+		
+//		if(!RegExputils.isIDCard(idCardNum)){
+//			logger.info("身份证格式错误");
+//			return new Result(false, "身份证格式错误");
+//		}
+		if(idCardUpPhoto == null || idCardDownPhoto == null){
+			logger.info("上传照片url为空");
+			return new Result(false, "请上传身份证照片");
+		}
+		if(name ==null || cityCode == null || sex == null || address == null){
+			return new Result(false, "数据不能为空");
+		}
+		try{
+			Cache cm = CacheManager.getContent("cityMap");
+			String city = "";
+			if (cm != null){
+				Map<String, String> cityMap = (Map<String, String>)(cm.getValue());
+				city = cityMap.get(cityCode);
+			}
+//			数据库中已存在信息
+			if(dao.query4CustInfoByPhoneNum(cust.getPhoneNum()) != null){
+				return new Result(false, "提交失败");
+			}
+//			数据库中已存在信息
+			if(dao.query4CustAmountByPhoneNum(cust.getPhoneNum()) != null){
+				return new Result(false, "提交失败");
+			}
+			
+			int result = dao.insert2CustomerInfo(cust.getId(), cust.getPhoneNum(), name, 
+					idCardNum, city, cityCode, sex, address, 
+					idCardUpPhoto, idCardDownPhoto, "10N", new Date());
+			logger.info("写入个人信息结果：" + result);
+
+			result = dao.insert2customerAmount(cust.getId(), cust.getPhoneNum(), loanAmount, 0, restAmount, creditCardNum);
+			logger.info("初始化账户额度：" + result);
+			
+			CustInfo custInfo = dao.query4CustInfoByPhoneNum(cust.getPhoneNum());
+			CustAmount amount = dao.query4CustAmountByPhoneNum(cust.getPhoneNum());
+			CustMsg customerMsg = new CustMsg(cust, custInfo, amount);
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("custInfo", custInfo);
+			map.put("customerMsg", customerMsg);
+			return new Result(true, map);
+		}catch(Exception e){
+			e.printStackTrace();
+			logger.info(e.getMessage());
+			return new Result(false, "提交失败");
+		}
+		
+	}
+	
+	private Result checkRegisterData(String phoneNum, String password, String smsNum){
+		if(phoneNum == null){
+			return new Result(false, "手机号码为空");
+		}else{
+			if(!RegExputils.regexPhoneNum(phoneNum)){
+				return new Result(false, "手机号格式错误");
+			}
+		}
+		
+		if(password == null)
+			return new Result(false, "密码不能为空");
+		
+		Cache smsCache = CacheManager.getContent(phoneNum+"sms");
+		if(smsCache == null){
+			return new Result(false, "验证码错误，请刷新页面");
+		}else{
+			if(smsCache.isExpired()){
+				CacheManager.invalidate(phoneNum+"sms");
+				return new Result(false, "验证码已过期，请重新获取验证码");
+			}else{
+				if(!smsNum.equals(smsCache.getValue().toString())){
+					CacheManager.invalidate(phoneNum+"sms");
+					return new Result(false, "验证码错误，请刷新页面");
+				}else{
+					CacheManager.invalidate(phoneNum+"sms");
+					return new Result(true, null);
+				}
+			}
+		}	
+	}
+
+
+
+	@Override
+	public Result photoUpLoad(MultipartFile file, Customer cust, String filename, String root) {
+		// TODO Auto-generated method stub
+		
+//		校验图片格式
+		String oraginalFileName = file.getOriginalFilename();
+		String reg = RegExputils.checkFileEnd(oraginalFileName);
+		if(reg.equals("00")){
+			return new Result(false, "图片格式不符合要求");
+		}else{
+			filename = filename + reg;
+		}
+		String path = root + "/resources/customer/" + cust.getPhoneNum() + "/idCard/";
+		logger.info("filename: "  + filename + " path:" + path);
+		if(FileUpload.uploadIdCardFile(file, path, filename)){
+			Object url = "resources/customer/" + cust.getPhoneNum() + "/idCard/" + filename;
+			return new Result<Object>(true, url);
+		}else{
+			return new Result(false, "上传失败");
+		}
+	}
+
+
+
+	@Override
+	public Result loanOrder(String orderAmount, String loanPurpose,
+			String creditCardId, String loanPassword, String loanTime1,
+			String url, Customer cust, CustMsg custMsg) {
+		// TODO Auto-generated method stub
+		if(custMsg == null){
+			logger.error("用户为空");
+			return new Result(false, "error请重新登录");
+		}
+//		校验密码是否正确
+		if(!loanPassword.equals(cust.getPassword())){
+			return new Result(false,"密码错误");
+		}
+		logger.info("url: " + url);
+		String orderId = RegExputils.getOrderIdFromvideoUrl(url);
+		String msg_type = "1003";
+		String phoneNum = cust.getPhoneNum();
+		String state = "10N";
+		Date createDate = new Date();
+		String msg = "";
+		
+		//string 转为 date类型
+		if(loanTime1 == "1个月 "){
+			loanTime1 = "1";
+		}else if(loanTime1 == "3个月"){
+			loanTime1 = "3";
+		}else{
+			loanTime1 = "6";
+		}
+		int loanTime = Integer.parseInt(loanTime1);
+		Calendar now = Calendar.getInstance();
+		now.add(Calendar.MONTH,loanTime);
+		Date loanTime2 = now.getTime();
+		
+		if(orderId != null){
+			msg = createOrderXml(custMsg.getName(), phoneNum, creditCardId, custMsg.getIdCardNum(), 
+					orderAmount, orderId, url, custMsg.getCityCode(), loanPurpose, loanTime1);
+			logger.info("订单" + orderId + "xml : "  + msg);
+			try{
+				//查询客户账户
+				CustAmount amount = dao.query4CustAmountByPhoneNum(phoneNum);
+				if(amount == null){
+					throw new Exception("账户错误");
+				}
+				int usedAmount = amount.getUsedAmount() + Integer.valueOf(orderAmount);
+				int restAmount = amount.getRestAmount() - Integer.valueOf(orderAmount);
+				//更新账户额度
+				dao.updateCustAmount(usedAmount, restAmount, phoneNum);
+				//写入订单
+				dao.insert2customerLoan(orderId, msg_type, state, phoneNum, msg, createDate,
+						custMsg.getCityCode(),loanTime2);
+				amount = dao.query4CustAmountByPhoneNum(phoneNum);
+				return new Result(true, amount);
+			}catch(Exception e){
+				logger.info(e.getMessage());
+				e.printStackTrace();
+				return new Result(false, "error");
+			}
+		}else{
+			return new Result(false, "error");
+		}
+	}
+	
+	/*
+	 * 生成订单xml
+	 */
+	private String createOrderXml(String name, String phoneNum, String creditCardId, String idCardNum, String orderAmount, String orderId,
+			String viderUrl, String cityCode, String loanPurpose, String loanTime){
+		// 创建Document对象
+        Document document = DocumentHelper.createDocument();
+        Element root = document.addElement( "workMsg" );
+        root.addElement("cust_name").setText(name);
+        root.addElement("phone_num").setText(phoneNum);
+        root.addElement("credit_card_id").setText(creditCardId);
+        root.addElement("id_card_num").setText(idCardNum);
+        root.addElement("order_amount").setText(orderAmount);
+        root.addElement("order_id").setText(orderId);
+        root.addElement("video_url").setText(viderUrl);
+        root.addElement("city_code").setText(cityCode);
+        root.addElement("loan_purpose").setText(loanPurpose);
+        root.addElement("loan_time").setText(loanTime);
+        return document.asXML();
+	}
+	
+	/*
+	 * 客户根据条件查询订单
+	 */
+	@Override
+	public Result searchOrdersByCust(Customer cust, String phoneNum,
+			String orderId, String msgType, String startDate, String endDate) {
+		// TODO Auto-generated method stub
+		String sql = "SELECT id,order_id,msg_type,state,phone_num,order_msg,create_date,review_date," +
+				"error_log,city_code,loan_time,ext1 FROM dnf_order_msg where state='10N' " +
+				"and phone_num=" + phoneNum + " ";
+		if(!"".equals(orderId.trim())){
+			sql = sql + "and order_id = " + orderId + " ";
+		}
+		if(msgType != ""){
+			if(msgType.equals("1003") || msgType.equals("1005") || msgType.equals("1008")){
+				sql = sql + "and msg_type=" + msgType + " ";
+			}
+		}
+		if(startDate != "" && endDate != ""){
+			DateFormat df = DateFormat.getTimeInstance();
+			startDate = startDate + " " + df.format(new Date());
+			endDate = endDate + " " + df.format(new Date());
+			sql = sql + "and create_date between " + "'" + startDate + "'" + " and " + "'" + endDate + "'" + " "; 
+		}
+		
+		List<OrderMessage> OrderMsgList = dao.query4OrderMessage(sql);
+		
+//		OrderMessage ordermsg1 = OrderMsg.get(0);
+		List<WorkMsg> workMsgList = new ArrayList();
+		for(OrderMessage orderMessage : OrderMsgList){
+			WorkMsg workmsg = Orderutils.processOrderxml(orderMessage);
+			if(workmsg != null){		
+				workMsgList.add(workmsg);
+			}
+		}
+		return new Result(true,workMsgList);
+	}	
+	
+	/*
+	 * 上传贷款视频
+	 */
+	@Override
+	public Result uploadVideo(MultipartFile file, Customer cust, String root) {
+		// TODO Auto-generated method stub
+		String oraginalFileName = file.getOriginalFilename();
+		String orderId = Orderutils.getOrderId();
+		String filename = orderId + "video";
+		String reg = RegExputils.checkVideo(oraginalFileName);//判断video类型是否符合要求
+		if(reg.equals("00")){
+			return new Result(false, "视频格式不符合要求");
+		} else {
+			filename = filename + reg;
+		}
+		DateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
+		String path = root + "/resources/customer/" + cust.getPhoneNum() + "/video/"+ format1.format(new Date()) + "/";
+		logger.info("filename: " + filename + " path:" + path);
+		if(FileUpload.uploadIdCardFile(file, path, filename)){
+			Object url = "resource/customer/" + cust.getPhoneNum() + "/video/" + format1.format(new Date()) + "/" + filename;
+			return new Result<Object>(true, url);
+		} else {
+			return new Result(false, "上传失败");
+		}	
+	}
+	
+	
+}

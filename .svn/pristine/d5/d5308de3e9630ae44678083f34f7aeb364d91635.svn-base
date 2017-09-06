@@ -1,0 +1,29 @@
+package com.dnf.service.impl;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.dnf.dao.StaffDao;
+import com.dnf.entity.Staff;
+import com.dnf.service.StaffService;
+
+@Service
+public class StaffServiceImpl implements StaffService{
+	
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	@Autowired
+	private StaffDao staffDao;
+	
+	@Override
+	public Staff queryByUsername(String userName){
+		return staffDao.queryByUsername(userName);
+	}
+	
+	@Override
+	public int insert2Staffs(String userName,String password){
+		return staffDao.insert2Staffs(userName,password);
+	}
+}

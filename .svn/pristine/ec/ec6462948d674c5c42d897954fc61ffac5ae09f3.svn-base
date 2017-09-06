@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dnf.dao.BeforeLoanDao">
+	<select id="query4customerInfo10N" resultType="CustInfo">
+		SELECT
+			id, phone_num, name, id_card_num, city, city_code, sex, address,
+			id_card_up_photo,
+			id_card_down_photo, state, create_date, review_date, error_log
+		FROM
+			customerInfo
+		WHERE
+			state='10N'
+		LIMIT #{limit}
+		OFFSET #{offset}
+	</select>
+
+	<select id="query4countInfo10N" resultType="Integer">
+		SELECT
+			count(*)
+		FROM
+			customerInfo
+		WHERE
+			state='10N'
+	</select>
+
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dnf.dao.CustomerDao">
+	<!-- 目的：为dao接口方法提供sql语句配置 -->
+	<select id="queryAllCust" resultType="Customer">
+		SELECT
+			id,
+			phone_num,
+			password
+		FROM
+			customers
+		ORDER BY
+			id
+		LIMIT #{offset}, #{limit}
+	</select>
+	
+	<select id="queryByPhoneNum" resultType="Customer">
+		SELECT
+			id,
+			phone_num,
+			password
+		FROM
+			customers
+		where phone_num = #{PhoneNum}
+	</select>
+	
+	<insert id="insert2Customers">
+		Insert into 
+			customers(phone_num, password)
+		VALUES(#{phoneNum}, #{password})		
+	</insert>
+</mapper>

@@ -1,0 +1,4 @@
+document.write("<script  src='resources/js/main.js?"+Math.random()+"'></script>");
+//document.write("<script  src='resources/js/ajaxfileupload.js?"+Math.random()+"'></script>");
+document.write("<script  src='resources/js/bootstrap.js?"+Math.random()+"'></script>");
+//document.write("<script src='resources/js/md5.js?"+Math.random()+"'></script>");

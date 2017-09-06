@@ -1,0 +1,51 @@
+package com.dnf.service.impl;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.dnf.dao.CustomerDao;
+import com.dnf.entity.City;
+import com.dnf.entity.CustAmount;
+import com.dnf.entity.CustInfo;
+import com.dnf.entity.Customer;
+import com.dnf.service.CustomerService;
+
+@Service
+public class CustomerServiceImpl implements CustomerService {
+
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	@Autowired
+	private CustomerDao customerDao;
+
+	@Override
+	public Customer queryByPhoneNum(String phoneNum){
+		
+		return customerDao.queryByPhoneNum(phoneNum);
+	}
+
+	@Override
+	public int insert2Customers(String phoneNum, String password) {
+		return customerDao.insert2Customers(phoneNum, password);
+	}
+
+	@Override
+	public CustInfo query4CustInfoByPhoneNum(String phoneNum) {
+		return customerDao.query4CustInfoByPhoneNum(phoneNum);
+	}
+	
+	@Override
+	public CustAmount query4CustAmountByPhoneNum(String phoneNum) {
+		return customerDao.query4CustAmountByPhoneNum(phoneNum);
+	}
+
+	@Override
+	public List<City> query4CityName() {
+		return customerDao.query4CityName();
+	}
+
+}

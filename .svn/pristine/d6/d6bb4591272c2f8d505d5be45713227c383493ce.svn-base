@@ -1,0 +1,40 @@
+package com.dnf.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.dnf.dao.BeforeLoanDao;
+import com.dnf.entity.CustInfo;
+import com.dnf.entity.OrderMessage;
+import com.dnf.service.BeforeLoanService;
+
+@Service
+public class BeforeLoanServiceImpl implements BeforeLoanService {
+	
+	@Autowired
+	private BeforeLoanDao dao;
+	
+	@Override
+	public List<CustInfo> query4customerInfo10N(int offset, int limit) {
+		// TODO Auto-generated method stub
+		return dao.query4customerInfo10N(offset, limit);
+	}
+	
+	@Override
+	public List<OrderMessage> query4OrderMessage(int offset, int limit) {
+		return dao.query4OrderMessage(offset, limit);
+	}
+	
+	@Override
+	public int getCount() {
+		// TODO Auto-generated method stub
+		return dao.query4countInfo10N();
+	}
+	
+	@Override
+	public int getOrderCount(){
+		return dao.query4CountOrdermsg();
+	}
+}

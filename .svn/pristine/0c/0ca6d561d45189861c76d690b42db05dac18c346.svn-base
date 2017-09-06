@@ -1,0 +1,32 @@
+function check_name() {
+	var name_err = document.getElementById('name_err');
+	var name = $('#name').val();
+    var regularName = /^[\u4E00-\u9FA5]{2,5}$/;
+
+    if (!regularName.test(name)) {
+    	name_err.innerHTML = '请输入正确的姓名格式';
+    }else{
+    	name_err.innerHTML = "";
+    }
+}
+function check_id_card() {
+	var id_card_num_err = document.getElementById('id_card_num_err');
+	var id_card_num = $('#id_card_num').val();
+    var regularIdCardNum = /^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$/;
+
+    if (!regularIdCardNum.test(id_card_num)) {
+    	id_card_num_err.innerHTML = '请输入18位身份证号码';
+    }else{
+    	id_card_num_err.innerHTML = "";
+    }
+}
+function check_address() {
+	var address_err = document.getElementById('address_err');
+	var address = document.getElementById("address").value;
+	
+    if (address) {
+    	address_err.innerHTML = '';
+    }else{
+    	address_err.innerHTML = "地址不能为空";
+    }
+}

@@ -1,0 +1,387 @@
+    if($("#user_state").text()=="10N"){
+    	$("#user_money").text("您的账号未审核通过");
+    	$("#btn").attr("disabled","disabled");
+    	$("#submit").attr("disabled","disabled");
+    }
+	//贷款起始时间初始化
+	var time=new Date();
+	var year=time.getFullYear();
+	var month=time.getMonth()+1;
+	var day=time.getDate();
+
+	if(month<10){
+		var x=year+"-0"+month+"-"+day;
+		$("#endDate").val(x);
+	}
+	else{
+		var x=year+"-"+month+"-"+day;
+		$("#endDate").val(x);
+	}
+	
+	
+	
+	month=month-3;
+    if(month>0){
+    	if(month<10){
+    		var x=year+"-0"+month+"-"+day;
+    		$("#startDate").val(x);
+    	}
+    	else{
+    		var x=year+"-"+month+"-"+day;
+    		$("#startDate").val(x);
+    	}
+    }
+    else{
+    	month=month+12;
+    	if(month<10){
+    		var x=year+"-0"+month+"-"+day;
+    		$("#startDate").val(x);
+    	}
+    	else{
+    		var x=year+"-"+month+"-"+day;
+    		$("#startDate").val(x);
+    	}
+    }
+	
+	
+	
+	
+
+	var thisTime;
+	$('.nav-ul li').mouseleave(function(even) {
+		thisTime = setTimeout(thisMouseOut, 1000);
+	})
+
+	$('.nav-ul li').mouseenter(function() {
+		clearTimeout(thisTime);
+		var thisUB = $('.nav-ul li').index($(this));
+		if ($.trim($('.nav-slide-o').eq(thisUB).html()) != "") {
+			$('.nav-slide').addClass('hover');
+			$('.nav-slide-o').hide();
+			$('.nav-slide-o').eq(thisUB).show();
+		} else {
+			$('.nav-slide').removeClass('hover');
+		}
+
+	})
+
+	function thisMouseOut() {
+		$('.nav-slide').removeClass('hover');
+	}
+
+	$('.nav-slide').mouseenter(function() {
+		clearTimeout(thisTime);
+		$('.nav-slide').addClass('hover');
+	});
+	$('.nav-slide').mouseleave(function() {
+		$('.nav-slide').removeClass('hover');
+	});
+
+	$("#loan").click(function() {
+		$("#loan_order").css('display', 'block');
+		$("#repay_money").css('display', 'none');
+	});
+
+	$("#repay").click(function() {
+		$("#repay_money").css('display', 'block');
+		$("#loan_order").css('display', 'none');
+	});
+
+	
+
+
+			$("#loan_num").keyup(function(){
+				var loan_num=$("#loan_num").val();
+				var restAmount=$("#restAmount").val();
+				if((loan_num%100)!=0){
+					$("#error").css('display','block');
+				}
+				else{
+					$("#error").css('display','none');
+				}
+
+				if((loan_num/restAmount)>=1){
+					
+					$("#error1").css('display','block');
+				}
+				else{
+					$("#error1").css('display','none');
+				}
+			});
+    
+
+	
+var loan_video_url = null;
+function checkVideo() {
+	$("#upfile").val($("#loan_video").val());
+	var index = $("#upfile").val().indexOf(".");
+	var str = $("#upfile").val().substring(index);
+	if (str != ".mp4" && str != ".rmvb" && str != ".avi" && str != ".ts") {
+		$("#v_error").css('display', 'block');
+	}else {
+		$("#v_error").css('display', 'none');
+		$.ajaxFileUpload({
+			url:"info.loan_video",
+			fileElementId: "loan_video",
+			dataType: "text",
+			success: function(data) {
+				console.log(data);
+				var result = eval('(' + data + ')');
+				if(result.success) {
+					loan_video_url = result.data;
+					console.log("上传成功");
+				} else {
+					console.log("上传失败");
+				}
+			}
+		});
+	}
+	
+}
+
+
+
+
+function loan_submit() {
+	
+	var loan_time = $("#loan_time").val();
+	var loan_bank_card_num = $("#loan_bank_card_num").val();
+	var loan_use = $("#loan_use").val();
+	var loan_password = $("#loan_password").val();
+	loan_password = md5_password(loan_password);
+	var loan_num = $("#loan_num").val();
+	var upfile = $("#upfile").val();
+	if (($("#loan_bank_card_num").val() != "") && ($("#loan_time").val() != "")
+			&& ($("#loan_num").val() != "") && ($("#loan_use").val() != "")
+			&& ($("#loan_password").val() != "") && ($("#upfile").val() != "")) {
+		$.ajax({
+			url : "loan.action",
+			type : "post",
+			data : {
+
+				"loan_bank_card_num" : loan_bank_card_num,
+				"loan_time" : loan_time,
+				"loan_num" : loan_num,
+				"loan_use" : loan_use,
+				"loan_password" : loan_password,
+				"loan_video_url" : loan_video_url
+			},
+			dataType : "json",
+			contentType : 'application/x-www-form-urlencoded; charset=UTF-8',
+			success : function(result) {
+				console.log(result);
+				if(result.error=="密码错误"){
+					alert("您的密码错误！");
+				}
+				else{
+					alert("您的贷款已成功！");
+					location.reload();
+				}
+
+
+			},
+			error : function(result) {
+				// console(result);
+
+			}
+		});
+	} else
+		alert("请把信息填写完整");
+
+}
+
+function md5_password(password){
+  var md5Password = hex_md5(password);
+      md5Password += "DNF";
+      md5Password = hex_md5(password);
+      return md5Password;
+}
+
+
+function repay_submit(){
+	var orderId=$("#orderId").val().trim();
+	var msgType=$("#msgType").find("option:selected").attr("name");
+	var startDate=$("#startDate").val();
+	var endDate=$("#endDate").val();
+	var time=new Date();
+//	if("".equals(orderId.trim())){
+//		orderId = null;
+//	}
+	$("#tbody").empty();
+	$.ajax({
+		url : "orderMsg.action",
+		type : "post",
+		data : {
+
+			"orderId" : orderId,
+			"msgType" : msgType,
+			"startDate" : startDate,
+			"endDate" : endDate
+		},
+		dataType : "json",
+		contentType : 'application/x-www-form-urlencoded; charset=UTF-8',
+		success : function(result) {
+			//console.log(result);
+			if(result.success) {
+				resultList = result;
+                if(result.data.length==0) alert("找不到你想要的数据");
+                else{             	
+                	if(result.data.length%num==0)
+                	{
+                		page=result.data.length/num;
+                	}
+    				else{
+    					page=Math.ceil(result.data.length/num);}
+    				var index=num;
+    				dataDisplay(result.data,0,index);		//显示第0-第index条数据
+    				pageDisplay();   //显示分页
+
+    				$("#right").click(function(){
+    					now_page++; 
+    					if(now_page>page){now_page--; index=index-6;}
+    					$("#page").text(now_page);  //改变显示的页数
+    					if(now_page+1>page) {$("#right").css({backgroundColor:"#DDDDDD"});}else{$("#right").css({backgroundColor:"white"});}
+        	            if(now_page-1<1) { $("#left").css({backgroundColor:"#DDDDDD"});} else{$("#left").css({backgroundColor:"white"});}
+    					$("#tbody").empty();
+    					dataDisplay(result.data,index,index=index+num);
+    					
+    				});
+    				
+    				$("#left").click(function(){
+    					now_page--;
+    					if(now_page<1){now_page++; index=index+6;}
+    					$("#page").text(now_page);  //改变显示的页数
+    					if(now_page-1<1) { $("#left").css({backgroundColor:"#DDDDDD"});} else{$("#left").css({backgroundColor:"white"});}
+    		        	if(now_page+1>page) { $("#right").css({backgroundColor:"#DDDDDD"});} else{$("#right").css({backgroundColor:"white"});}
+    					$("#tbody").empty();
+    					dataDisplay(result.data,index=index-2*num,index=index+num);					
+    				});
+                }
+				
+			}
+		},
+		error : function(result) {
+			// console(result);
+
+		}
+	});
+}
+
+//显示分页
+function pageDisplay(){
+	$("#pagination").empty();
+	var pagiantion;
+	pagiantion="<li><a id='left' style='color:green; background-color:#DDDDDD' onclick='return false'><<</a></li>"+
+    "<li class='active'><a id='page' style='background-color:green'>"+1+"</a></li>"+
+    "<li><a id='right' style='color:green'>>></a></li>";   				
+	$("#pagination").append(pagiantion);
+}
+
+var num=6;//每页显示多少条数据
+var page;//总页数
+var now_page=1;//当前页数
+var resultList = null;
+
+//显示AJAX获取的数据（分页）
+function dataDisplay(result,begin,end){
+	var str; 
+
+	for(var i=begin;i<end;i++){
+		console.log(result[i]);
+		if(result[i]!=null){
+			if(result[i].msgType==1003) {result[i].msgType="待审核";}
+			if(result[i].msgType==1005) {result[i].msgType="待还款";}
+			if(result[i].msgType==1008) {result[i].msgType="已还款";}
+			var time=changeDateFormat(result[i].createDate);
+			str="<tr>" +
+					"<td>"+result[i].orderId+"</td>" +
+					"<td>"+result[i].orderAmount+"</td>" +
+					"<td>"+result[i].createDate+"</td>" +
+					"<td>"+result[i].custName+"</td>" +
+					"<td>"+result[i].msgType+"</td>";
+			
+			if(result[i].msgType=="待还款"){
+				
+				var xxx=JSON.stringify(result[i]);
+	            str=str+'<td><input type="button" onclick="myModal(' + i + ')" class="btn" value="还款" style="color:white;background-color:#5DB85D;height:30px;width:80px;" ></td></tr>'
+			}
+			else{
+				str=str+"<td><input type='button' class='btn' value='还款' disabled='disabled' style='color:white;background-color:gray;height:30px;width:80px;'></td></tr>"
+			}
+			$("#tbody").append(str);
+		}
+		
+
+	}
+}
+
+//渲染，显示还款模态框
+function myModal(i){
+	if(resultList != null){
+		var result = resultList.data[i];
+		$("#user_repayMoney").text(result.orderAmount);
+		$("#user_repayCard").text("银行卡支付："+result.idCardNum);
+		$("#num_submit").val(result.phoneNum);
+		$("#id_submit").val(result.orderId);
+	}
+	$("#modal").modal();
+}
+
+//还款接口
+function userRepay_submit(){
+	var id_submit=$("#id_submit").val();
+	var num_submit=$("#num_submit").val();
+	var password_submit=$("#password_submit").val();
+	var user_repayMoney=$("#user_repayMoney").text();
+	alert(id_submit+num_submit+password_submit+user_repayMoney);
+	if(password_submit==""){
+		alert("请输入密码！");
+	}
+	else{
+		$.ajax({
+			url : "before/repay",
+			type : "post",
+			data : {
+				"orderId" : id_submit,
+				"phone_num" : num_submit,
+				"password":password_submit,
+				"loan_amount":user_repayMoney
+			},
+			dataType : "json",
+			contentType : 'application/x-www-form-urlencoded; charset=UTF-8',
+			success : function(result) {
+				console.log(result);
+				alert(result.error);
+				
+			},
+			error : function(result) {
+				// console(result);
+
+			}
+		});
+	}
+	
+}
+
+//时间格式转换
+function changeDateFormat(time){
+	var year,month,day,hour,minute,second;
+	day=time[8]+time[9];
+	year=time[24]+time[25]+time[26]+time[27];
+	if(time[4]+time[5]=="Ja"){month=01;}
+	if(time[4]+time[5]=="Fe"){month=02;}
+	if(time[4]+time[5]=="Ma"){month=03;}
+	if(time[4]+time[5]=="Ap"){month=04;}
+	if(time[4]+time[5]=="Ma"){month=05;}
+	if(time[4]+time[5]+time[6]=="Jun"){month=06;}
+	if(time[4]+time[5]+time[6]=="Jul"){month=07;}
+	if(time[4]+time[5]=="Au"){month=08;}
+	if(time[4]+time[5]=="Se"){month=09;}
+	if(time[4]+time[5]=="Oc"){month=10;}
+	if(time[4]+time[5]=="No"){month=11;}
+	if(time[4]+time[5]=="De"){month=12;}
+	hour=time[11]+time[12];
+	minute=time[14]+time[15];
+	second=time[17]+time[18];
+	return year+"-"+month+"-"+day+" "+hour+":"+minute+":"+second;
+}

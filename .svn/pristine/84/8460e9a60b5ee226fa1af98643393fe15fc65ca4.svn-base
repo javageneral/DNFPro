@@ -1,0 +1,28 @@
+package com.dnf.dao;
+import java.util.List;
+
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.dnf.BaseTest;
+import com.dnf.entity.Customer;
+
+public class CustomerTest extends BaseTest {
+	
+	@Autowired
+	private CustomerDao dao;
+	
+	@Test
+	public void queryAllCust(){
+		List<Customer> list = dao.queryAllCust(0, 20);
+		for(Customer cust : list){
+			System.out.println(cust.toString());
+		}
+		
+		Customer cus = dao.queryByPhoneNum("marco");
+		System.out.println(cus.toString());
+		
+	}
+	
+
+}

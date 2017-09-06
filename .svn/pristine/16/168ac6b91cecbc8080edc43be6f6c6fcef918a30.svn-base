@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dnf.dao.StaffDao">
+	<!-- 目的：为dao接口方法提供sql语句配置 -->
+	<select id="queryAllStaff" resultType="Staff">
+		SELECT
+			id,
+			user_name,
+			password
+		FROM
+			staffs
+		ORDER BY
+			id
+		LIMIT #{offset}, #{limit}
+	</select>
+	
+	<select id="queryByUsername" resultType="Staff">
+		SELECT
+			id,
+			user_name,
+			password
+		FROM
+			staffs
+		where user_name = #{userName}
+	</select>
+	
+	<insert id="insert2Staffs">
+		Insert into 
+			staffs(user_name, password)
+		VALUES(#{userName}, #{password})		
+	</insert>
+</mapper>

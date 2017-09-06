@@ -1,0 +1,37 @@
+function login(){
+	var username = $('#username').val();
+	var password = $('#password').val();
+	var _csrf = $('#_csrf').val();
+	if (username == ""){
+//		alert("请输入用户名");
+//		username.focus();
+		return false;
+	}
+	if(password == ""){
+//		alert("请输入密码");
+//		password.focus();
+		return false;
+	}
+	$.ajax({
+		url: "login.action",
+		type: "post",
+		data: {
+			"username" : username,
+			"password" : password,
+			"CSRFToken" : _csrf
+		},
+		dataType: "json",
+		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+		success:function(result){
+			console.log(result);
+			if(result["success"]){
+				alert("登录成功");
+			}else{
+				alert(result["error"]);
+			}
+		},
+		error: function(result){
+			alert("登录异常，请刷新页面");
+		}
+	})
+}

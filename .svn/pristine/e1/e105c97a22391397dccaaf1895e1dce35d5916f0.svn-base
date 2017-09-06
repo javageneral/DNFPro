@@ -1,0 +1,36 @@
+package com.dnf.sys;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+@RequestMapping("/sys")
+public class UrlController {
+	
+	@RequestMapping(value="/usermain")
+	public String MainPage(){
+		return "usermain";
+	}
+	
+	@RequestMapping("/approval")
+	public String getapprovalPage(){
+		return "customerApproval";
+	}
+	
+	@RequestMapping("/custmsg")
+	public String getcustmsgPage(){
+		return "custmsgsearch";
+	}
+	
+	@RequestMapping("/userlogin")
+	public String loginPage(HttpServletRequest request){
+		return "workerLogin";
+	}
+	
+	@RequestMapping("/loan")
+	public String getLoanApprovalPage(HttpServletRequest request){
+		return "loanApproval";
+	}
+}

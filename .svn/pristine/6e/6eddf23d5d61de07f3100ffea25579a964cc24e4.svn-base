@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dnf.dao.CacheDao">
+	<select id="query4CityName" resultType="City">
+		SELECT 
+			id,city, city_code
+		FROM
+			city
+	</select>
+	
+	<select id="query4OrderMsgParam" resultType="OrderParam">
+		SELECT 
+			id, param_id, param_name, param_code
+		FROM
+			order_msg_param_type
+	</select>
+</mapper>

@@ -1,0 +1,69 @@
+function login(){
+	var username = $('#username').val();
+	var password = $('#password').val();
+	var _csrf = $('#_csrf').val();
+	var login_err = document.getElementById("login_err");
+	var regularUsername = /^1\d{10}/;//校验用户名
+	var regularPassword = /[a-zA-Z0-9\+\-\_\*]{8,16}$/;//校验用户名
+	
+	if (username == ""){
+        login_err.innerHTML = "用户名不能为空";
+        $("#username").focus();
+		return false;
+	}else{
+		login_err.innerHTML = "";
+	}
+	if(password == ""){
+		login_err.innerHTML = "密码不能为空";
+        $("#password").focus();
+		return false;
+	}else {
+		login_err.innerHTML = "";
+	}
+	
+	if (!(regularUsername.test(username))) {
+		login_err.innerHTML = "请输入11位手机号码";
+		return false;
+	}else{
+		login_err.innerHTML = "";
+	}
+	if (!(regularPassword.test(password))) {
+		login_err.innerHTML = "请输入8-16位字符密码";
+		return false;
+	}else{
+		login_err.innerHTML = "";
+	}
+	
+    password = md5_password(password);
+    
+	$.ajax({
+		url: "login.action",
+		type: "post",
+		data: {
+			"username" : username,
+			"password" : password,
+			"CSRFToken" : _csrf
+		},
+		dataType: "json",
+		contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+		success:function(result){
+			console.log(result);
+			if(result["success"]){
+				alert("登录成功");
+			}else{
+				//alert(result["error"]);
+				login_err.innerHTML = result.error;
+			}
+		},
+		error: function(result){
+			//alert(result);
+		}
+	})
+}
+function md5_password(password){
+  var md5Password = hex_md5(password);
+      md5Password += "DNF";
+      md5Password = hex_md5(password);
+      return md5Password;
+      
+}

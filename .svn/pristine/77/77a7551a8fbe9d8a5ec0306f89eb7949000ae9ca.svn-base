@@ -1,0 +1,42 @@
+package com.dnf.dao;
+
+import java.util.List;
+
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.dnf.BaseTest;
+import com.dnf.entity.CustInfo;
+
+public class BeforeLoanTest extends BaseTest{
+	
+	@Autowired
+	private BeforeLoanDao dao;
+	
+	@Test
+	public void test10NInfo(){
+		List<CustInfo> list = dao.query4customerInfo10N(20, 10);
+		int total = dao.query4countInfo10N();
+		System.out.println("  +++  " + total );
+		for(CustInfo cust : list){
+			System.out.println(cust.toString());
+		}
+		int i = dao.update4customerInfo210F("13710004533");
+		System.out.println(i);
+	}
+	
+	@Test
+	public void searchName(){
+		String name = "%黎%";
+//		List<CustInfo> list = dao.query4custInfobyName(name);
+//		List<CustInfo> list = dao.query4custInfobyPhoneNum("%371%", 10, 10);
+		String sql = "select * from customerInfo";
+		List<CustInfo> list = dao.query4custInfo(sql);
+		for(CustInfo i : list){
+			System.out.println(i.toString());
+		}
+	}
+	
+
+	
+}

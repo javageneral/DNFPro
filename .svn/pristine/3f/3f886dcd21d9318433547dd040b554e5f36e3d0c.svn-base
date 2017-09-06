@@ -1,0 +1,94 @@
+package com.dnf.entity;
+
+public class CustInfo {
+	long id;
+	String phoneNum;
+	String name;
+	String idCardNum;
+	String city;
+	String cityCode;
+	String sex;
+	String creditCardNum;
+	String address;
+	String idCardUpPhoto;
+	String idCardDownPhoto;
+	
+	
+	public long getId() {
+		return id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
+	public String getPhoneNum() {
+		return phoneNum;
+	}
+	public void setPhoneNum(String phoneNum) {
+		this.phoneNum = phoneNum;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getIdCardNum() {
+		return idCardNum;
+	}
+	public void setIdCardNum(String idCardNum) {
+		this.idCardNum = idCardNum;
+	}
+	public String getCity() {
+		return city;
+	}
+	public void setCity(String city) {
+		this.city = city;
+	}
+	public String getCityCode() {
+		return cityCode;
+	}
+	public void setCityCode(String cityCode) {
+		this.cityCode = cityCode;
+	}
+	public String getSex() {
+		return sex;
+	}
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+	public String getCreditCardNum() {
+		return creditCardNum;
+	}
+	public void setCreditCardNum(String creditCardNum) {
+		this.creditCardNum = creditCardNum;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public String getIdCardUpPhoto() {
+		return idCardUpPhoto;
+	}
+	public void setIdCardUpPhoto(String idCardUpPhoto) {
+		this.idCardUpPhoto = idCardUpPhoto;
+	}
+	public String getIdCardDownPhoto() {
+		return idCardDownPhoto;
+	}
+	public void setIdCardDownPhoto(String idCardDownPhoto) {
+		this.idCardDownPhoto = idCardDownPhoto;
+	}
+	@Override
+	public String toString() {
+		return "CustInfo [id=" + id + ", phoneNum=" + phoneNum + ", name="
+				+ name + ", idCardNum=" + idCardNum + ", city=" + city
+				+ ", cityCode=" + cityCode + ", sex=" + sex
+				+ ", creditCardNum=" + creditCardNum + ", address=" + address
+				+ ", idCardUpPhoto=" + idCardUpPhoto + ", idCardDownPhoto="
+				+ idCardDownPhoto + "]";
+	}
+	
+	
+}

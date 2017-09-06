@@ -1,0 +1,61 @@
+package com.dnf.sys;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.dnf.dto.CustMsg;
+import com.dnf.dto.WorkMsg;
+import com.dnf.entity.CustInfo;
+import com.dnf.entity.OrderMessage;
+import com.dnf.service.BeforeLoanService;
+import com.dnf.utils.Orderutils;
+import com.dnf.utils.Result;
+
+@Controller
+@RequestMapping("/before")
+public class BeforeLoanController {
+	
+	@Autowired
+	private BeforeLoanService service;
+	
+	@RequestMapping("/getCustInfo/{page}")
+	@ResponseBody
+	public Result getCustInfo(@PathVariable("page") int page){
+		int offset = (page-1)*10;
+		int total = service.getCount();
+		List<CustInfo> list = service.query4customerInfo10N(offset, 10);
+		List<CustMsg> msg = new ArrayList<CustMsg>();
+		for(CustInfo cust : list){
+			msg.add(new CustMsg(cust));
+		}
+		Result result = new Result(true, msg, page, total);		
+		return result;
+	}
+	
+	@RequestMapping("/getOrderMessage/{page}")
+	@ResponseBody
+	public Result getOrderMessage(@PathVariable("page") int page){
+		int offset = (page - 1) * 10;
+		int total = service.getOrderCount();
+		List<OrderMessage> list = service.query4OrderMessage(offset, 10);
+		List<WorkMsg> msg = new ArrayList<WorkMsg>();
+		
+		for(OrderMessage orderMsg : list){
+			WorkMsg workmsg = Orderutils.processOrderxml(orderMsg);
+			if(workmsg != null){
+				msg.add(workmsg);
+			}
+		}
+		return new Result(true, msg, page, total);
+	}
+	
+}

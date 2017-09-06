@@ -1,0 +1,116 @@
+package com.dnf.sys;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.dnf.dto.CustMsg;
+import com.dnf.dto.WorkMsg;
+import com.dnf.entity.CustInfo;
+import com.dnf.entity.OrderMessage;
+import com.dnf.service.BeforeLoanService;
+import com.dnf.utils.Orderutils;
+import com.dnf.utils.Result;
+
+@Controller
+@RequestMapping("/before")
+public class BeforeLoanController {
+
+	@Autowired
+	private BeforeLoanService service;
+
+	Logger logger = LoggerFactory.getLogger(BeforeLoanController.class);
+
+	/*
+	 * 获取待审核客户信息接口
+	 */
+	@RequestMapping("/getCustInfo/{page}")
+	@ResponseBody
+	public Result getCustInfo(@PathVariable("page") int page) {
+		int offset = (page - 1) * 10;
+		Result result = service.query4customerInfo10N(offset, 10, page);
+		return result;
+	}
+
+	/*
+	 * 
+	 * 获取待审核订单接口
+	 */
+	@RequestMapping("/getOrderMessage/{page}")
+	@ResponseBody
+	public Result getOrderMessage(@PathVariable("page") int page) {
+		int offset = (page - 1) * 10;
+		Result result = service.query4OrderMessage(offset, 10, page);
+		return result;
+	}
+
+	/*
+	 * 审核通过更新客户信息
+	 */
+	@RequestMapping("/updateCustInfo")
+	@ResponseBody
+	public Result updateCustInfo(HttpServletRequest request) {
+		String phoneNum = request.getParameter("phone_num");
+		Result result = service.update4customerInfo210F(phoneNum);
+		return result;
+	}
+
+	/*
+	 * 审核不通过填写错误日志
+	 */
+
+	@RequestMapping("/seterrorlog")
+	@ResponseBody
+	public Result seterrorlog(HttpServletRequest request) {
+		String phoneNum = request.getParameter("phone_num");
+		String log = request.getParameter("error_log");
+		Result result = service.update4custInfoErrorLog(log, phoneNum);
+		return result;
+	}
+
+	/*
+	 * 根据条件模糊查询
+	 */
+	@RequestMapping("/searchInfo/{page}")
+	@ResponseBody
+	public Result searchInfo(@PathVariable("page") int page,
+			HttpServletRequest request) {
+		String phoneNum = request.getParameter("phone_num");
+		String name = request.getParameter("names");
+		String idCardNum = request.getParameter("id_card_num");
+		String cityCode = request.getParameter("city_code");
+		String sex = request.getParameter("sex");
+		Result result = service.query4custInfo(phoneNum, name, idCardNum,
+				cityCode, sex, page);
+		return result;
+	}
+
+	// 审核通过更新订单信息
+	@RequestMapping("/updateOrderMessage")
+	@ResponseBody
+	public Result updateOrderMessage(HttpServletRequest request) {
+		String orderId = request.getParameter("order_id");
+		Result result = service.update4OrderMessage(orderId);
+		return result;
+	}
+
+	// 审核不通过，填写订单错误日志
+	@RequestMapping("/setOrdererrorlog")
+	@ResponseBody
+	public Result setOrdererrorlog(HttpServletRequest request) {
+		String orderId = request.getParameter("order_id");
+		String log = request.getParameter("error_log");
+		Result result = service.update4OrderErrorLog(log, orderId);
+		return result;
+	}
+
+}

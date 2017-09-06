@@ -1,0 +1,11 @@
+package com.dnf.service;
+
+import com.dnf.entity.Customer;
+
+public interface CustomerService {
+	
+	Customer queryByPhoneNum(String phoneNum);
+	
+	int insert2Customers(String phoneNum, String password);
+	
+}

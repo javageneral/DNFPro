@@ -1,0 +1,15 @@
+package com.dnf.service;
+
+import java.util.List;
+
+import com.dnf.entity.CustInfo;
+import com.dnf.entity.OrderMessage;
+
+public interface BeforeLoanService {
+//	查询所有等待审核的客户信息
+	List<CustInfo> query4customerInfo10N(int offset, int limit);
+//  查询所有等待审核的客户的订单信息
+	List<OrderMessage> query4OrderMessage(int offset, int limit);
+	int getCount();
+	int getOrderCount();
+}

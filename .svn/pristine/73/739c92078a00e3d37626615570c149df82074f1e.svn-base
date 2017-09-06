@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+	<!-- 配置SpringMVC -->
+	<!-- 1.开启SpringMVC注解模式 -->
+	<!-- 简化配置： 
+		(1)自动注册DefaultAnootationHandlerMapping,AnotationMethodHandlerAdapter 
+		(2)提供一些列：数据绑定，数字和日期的format @NumberFormat, @DateTimeFormat, xml,json默认读写支持 
+	-->
+	<mvc:annotation-driven />
+	
+	<!-- 2.静态资源默认servlet配置
+		(1)加入对静态资源的处理：js,gif,png
+		(2)允许使用"/"做整体映射
+	 -->
+	 <mvc:default-servlet-handler/>
+	 <mvc:resources mapping="/resources/**" location="/resources/" />
+	 
+	 <!-- 3.配置jsp 显示ViewResolver -->
+	 <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	 	<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+	 	<property name="prefix" value="/WEB-INF/jsp/" />
+	 	<property name="suffix" value=".jsp" />
+	 </bean>
+	 
+	 
+	 <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="utf-8"></property>
+		<property name="maxUploadSize" value="10485760000"></property>
+		<property name="maxInMemorySize" value="40960"></property>
+	</bean>
+	 
+	 	 <!-- 4.扫描web相关的bean -->
+	 <context:component-scan base-package="com.dnf.web" />
+	 
+	 
+	 <!-- 拦截器的配置 -->
+	<mvc:interceptors>
+		<mvc:interceptor>
+		<!-- /**包括路径及其子路径 拦截所有controller
+		如果是/admin/* 拦截的是/admin/add, /admin/list,etc.  而/admin/user/add不会被拦截
+		如果/admin/** 拦截/admin/user/add，/admin/add
+		-->
+			<mvc:mapping path="/**"/>
+			<bean class="com.dnf.interceptors.LoginInterceptor" >
+				<property name="allowedpass">
+					<list>
+						<value>/login</value>
+						<value>js</value>
+						<value>css</value>
+						<value>jsp</value>
+						<value>png</value>
+						<value>jpg</value>
+						<value>css.map</value>
+						<value>login.action</value>
+						<value>captcha</value>
+						<value>checkCaptcha</value>
+						<value>/register</value>
+						<value>checkPhone</value>
+						<value>getSmsNum</value>
+						<value>register.action</value>
+					</list>
+				</property>
+				<property name="csrfList">
+					<list>
+						<value>/login</value>
+						<value>/register</value>
+					</list>
+				</property>		
+				<property name="infoPass">
+					<list>
+						<value>info.id_card_up_photo</value>
+						<value>info.id_card_down_photo</value>
+						<value>getCity</value>
+						<value>info.value</value>
+					</list>
+				</property>			
+			</bean>
+		</mvc:interceptor>
+		
+		<!-- 配置csrf拦截器  -->
+		<!--
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<bean class="com.dnf.interceptors.PostCSRFInterceptor" ></bean>
+		</mvc:interceptor>
+		-->
+	</mvc:interceptors>  
+</beans>

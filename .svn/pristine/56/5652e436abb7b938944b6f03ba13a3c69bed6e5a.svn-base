@@ -1,0 +1,23 @@
+package com.dnf.dao;
+
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.dnf.BaseTest;
+import com.dnf.entity.Staff;
+
+public class StaffTest extends BaseTest{
+	
+	@Autowired
+	private StaffDao dao;
+	
+	@Test
+	public void testGetStaff(){
+		String username = "张三丰";
+		Staff sf = dao.queryByUsername(username);
+		if(sf != null){
+			System.out.println(sf.toString());
+		}
+		
+	}
+}

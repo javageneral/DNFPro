@@ -1,0 +1,101 @@
+$(function(){
+	var thisTime;
+	$('.nav-ul li').mouseleave(function(even){
+			thisTime=setTimeout(thisMouseOut,1000);
+	})
+
+	$('.nav-ul li').mouseenter(function(){
+		clearTimeout(thisTime);
+		var thisUB=$('.nav-ul li').index($(this));
+		if($.trim($('.nav-slide-o').eq(thisUB).html()) != "")
+		{
+			$('.nav-slide').addClass('hover');
+			$('.nav-slide-o').hide();
+			$('.nav-slide-o').eq(thisUB).show();
+		}
+		else{
+			$('.nav-slide').removeClass('hover');
+		}
+		
+	})
+	
+	function thisMouseOut(){
+		$('.nav-slide').removeClass('hover');
+	}
+	 
+	$('.nav-slide').mouseenter(function(){
+		clearTimeout(thisTime);
+		$('.nav-slide').addClass('hover');
+	})
+	$('.nav-slide').mouseleave(function(){
+		$('.nav-slide').removeClass('hover');
+	})
+    
+	
+
+	$("#loan").click(function(){		
+		$("#loan_order").css('display','block');
+		$("#repay_money").css('display','none');
+	});
+
+	$("#repay").click(function(){
+		$("#repay_money").css('display','block');
+		$("#loan_order").css('display','none');
+	});
+	
+	$("#loan_num").keyup(function(){
+		if(($("#loan_num").val()%100)!=0){
+			$("#error").css('display','block');
+		}
+		else if($("#loan_num").val()>$("#restAmount").val()){
+			$("#error1").css('display','block');
+		}
+		else{
+			$("#error").css('display','none');
+			$("#error1").css('display','none');
+		}
+	});
+	
+    
+})
+        function checkVideo(){
+	    $("#upfile").val($("#f").val());
+		var index= $("#upfile").val().indexOf("."); 
+		var str=$("#upfile").val().substring(index); 
+		if(str!=".mp4"&&str!=".rmvb"&&str!=".avi"&&str!=".ts"){ 
+			$("#v_error").css('display','block');	
+	    }
+		
+		else{
+			$("#v_error").css('display','none');
+		}
+	}
+
+function loan_submit(){
+
+	if(($("#loan_bank_card_num").val()!="")&&($("#loan_data").val()!="")&&($("#loan_num").val()!="")&&($("#loan_use").val()!="")&&($("#loan_password").val()!="")&&($("#upfile").val()!="")){
+			$.ajax({
+			url: "/getLoanMsg",
+			type: "post",
+			data: {
+				"loan_bank_card_num" : loan_bank_card_num,
+				"loan_data" : loan_data,
+				"loan_num" : loan_num,
+				"loan_use" : loan_use,
+				"loan_password" : loan_password,
+				"loan_video_url" : loan_video_url
+			},
+			dataType: "json",
+			contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+			success:function(result){
+//				console.log(result);
+				
+			},
+			error: function(result){
+				//console(result);
+			}
+		});
+	}
+	else alert("请把信息填写完整");
+	
+}

@@ -1,0 +1,9 @@
+package com.dnf.service;
+
+import com.dnf.entity.Customer;
+
+public interface CustomerService {
+	
+	Customer queryByUsername(String username);
+	
+}

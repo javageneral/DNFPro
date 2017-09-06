@@ -1,0 +1,50 @@
+package com.dnf.web;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.dnf.entity.Customer;
+import com.dnf.service.CustomerService;
+import com.dnf.utils.RegExputils;
+import com.dnf.utils.Result;
+
+@Controller
+@RequestMapping("/")
+public class RegisterController {
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	@Autowired
+	private CustomerService customerService;
+	
+	@RequestMapping("/register")
+	public String getRegisterPage(HttpServletRequest request){
+		return "register";
+	}
+	
+	@RequestMapping(value="/checkPhone", method=RequestMethod.POST)
+	public Result checkPhoneNum(HttpServletRequest request){
+		String phoneNum = request.getParameter("phone_num");
+		if(phoneNum != null){
+//			校验手机号码格式
+			if(!RegExputils.regexPhoneNum(phoneNum)){
+				return new Result(false, "手机号码格式错误");
+			}
+//			数据库中查询是否存在该用户
+			Customer cust = customerService.queryByPhoneNum(phoneNum);
+			if(cust == null){
+				return new Result(false, "该手机号码已注册");
+			}else {
+				return new Result(true, null);
+			}
+		}
+		return new Result(false, "手机号码不能为空");
+	}
+	
+	
+}
